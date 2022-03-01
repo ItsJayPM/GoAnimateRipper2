@@ -12,5 +12,5 @@ This tool rips assets for GoAnimate's "themes" and prepares them for immediate u
 - Flow Frames
 ### Stuff to keep in mind
 - A good chunk of the themes are ***LARGE***. Only use this tool if you have the space for it.
-- `charparts` need to be ripped manually. As far as I know, they are hardcoded.
-- This tool does not currently support `cc_themes`. For that functionality, refer to the old code available elsewhere.
+- This tool does not currently support `cc_theme`s. For that functionality, refer to the old code available elsewhere.
+- `charparts` need to be ripped manually. As far as I know, they are partially hardcoded, and require some aspects of `cc_theme`s to be implemented.
