@@ -53,24 +53,229 @@ namespace GATOOLS
             }
             return cipher;
         }
-        public async Task downloadAsset(string localFileName, string uriDownload, bool decrypt, byte[] key)
+        public async Task downloadAsset(string localFileName, string uriDownload, bool decrypt, byte[] keyt)
         {
             var httpClient = new HttpClient();
+            byte[] key = keyt;
             using (var response = await httpClient.GetAsync(uriDownload))
             {
                 var data = await response.Content.ReadAsByteArrayAsync();
                 if (decrypt)
                 {
                     byte[] deCypheredText = Decrypt(key, data);
+                    if (reencrypt.Checked)
+                    {
+                        key = Encoding.ASCII.GetBytes($"{key2.Text}");
+                        deCypheredText = Decrypt(key, deCypheredText);
+                    }
                     File.WriteAllBytes(localFileName, deCypheredText);
                 }
                 else
                 {
                     File.WriteAllBytes(localFileName, data);
                 }
+                return;
             }
         }
-        public async Task GoAnimateRip()
+
+        public async Task startTask()
+        {
+            if (ThemeCheck.Checked)
+            {
+                await GoAnimateRip(false);
+            }
+            else if (ThemeCCCheck.Checked)
+            {
+                await GoAnimateRip(true);
+            }
+            else if (CCCheck.Checked)
+            {
+                await GoAnimateCCRip(null);
+            }
+        }
+        public void lockControl()
+        {
+            button1.Enabled = false;
+            button1.Text = "Working...";
+            encrypt.Enabled = false;
+            reencrypt.Enabled = false;
+            key2.Enabled = false;
+            checkBox1.Enabled = false;
+            tid.Enabled = false;
+            dom.Enabled = false;
+        }
+        public void returnWithMessage(String mes)
+        {
+            log.Text = mes;
+            button1.Enabled = true;
+            button1.Text = "Start Ripping";
+            encrypt.Enabled = true;
+            reencrypt.Enabled = checkBox1.Checked;
+            key2.Enabled = true;
+            checkBox1.Enabled = true;
+            tid.Enabled = true;
+            dom.Enabled = true;
+            return;
+        }
+        public async Task GoAnimateCCRip(String carryThemeId)
+        {
+            lockControl();
+            var serverAddress = dom.Text + "cc_store/";
+            var httpClient = new HttpClient();
+            var themeId = carryThemeId != null ? carryThemeId : tid.Text;
+            var doDecryption = checkBox1.Checked;
+            byte[] key = Encoding.ASCII.GetBytes($"{encrypt.Text}");
+
+            var uri = $"{serverAddress}{themeId}/cc_theme.xml";
+            var localFileName = $".\\cc_store\\{themeId}\\cc_theme.xml";
+            var dir = $".\\cc_store\\{themeId}\\";
+            Directory.CreateDirectory(dir);
+            XElement xmlDoc = null;
+
+            await downloadAsset(localFileName, uri, false, null);
+            try
+            {
+                xmlDoc = XElement.Load(localFileName);
+            }
+            catch
+            {
+                returnWithMessage("An error occured parsing the cc_theme.xml file!");
+                return;
+            }
+            var components = xmlDoc.Elements("component");
+            //Reworked bar that actually isn't shite
+            duration.Maximum = components.Count();
+            duration.Value = 0;
+            foreach (var component in components)
+            {
+                var componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
+                var componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
+                var states = component.Elements("state");
+                uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/";
+                var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
+                Directory.CreateDirectory(localDir);
+
+                localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\";
+
+                if (componentType == "mouth")
+                {
+                    await downloadAsset(localFileName + "talk.swf", uri + "talk.swf", doDecryption, key);
+                    log.Text = $"Downloaded state 'talk.swf' for component '{componentId}' ({componentType}).";
+                    await downloadAsset(localFileName + "talk_sync.swf", uri + "talk_sync.swf", doDecryption, key);
+                    log.Text = $"Downloaded state 'talk_sync.swf' for component '{componentId}' ({componentType}).";
+                    if (themeId == "family")
+                    {
+                        await downloadAsset(localFileName + "talk_sad_sync.swf", uri + "talk_sad_sync.swf", doDecryption, key);
+                        log.Text = $"Downloaded state 'talk_sad_sync.swf' for component '{componentId}' ({componentType}).";
+                        await downloadAsset(localFileName + "talk_happy_sync.swf", uri + "talk_happy_sync.swf", doDecryption, key);
+                        log.Text = $"Downloaded state 'talk_happy_sync.swf' for component '{componentId}' ({componentType}).";
+                        await downloadAsset(localFileName + "talk_angry_sync.swf", uri + "talk_angry_sync.swf", doDecryption, key);
+                        log.Text = $"Downloaded state 'talk_angry_sync.swf' for component '{componentId}' ({componentType}).";
+
+                    }
+                }
+                await downloadAsset(localFileName + "thumbnail.swf", uri + "thumbnail.swf", doDecryption, key);
+                log.Text = $"Downloaded thumbnail for component '{componentId}' ({componentType}).";
+
+                foreach (var state in states)
+                {
+
+                    var stateId = state.Attributes().Where(a => a.Name == "id").Single().Value;
+
+                    uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{stateId}.swf";
+                    localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
+                    Directory.CreateDirectory(localDir);
+
+                    localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
+                    await downloadAsset(localFileName, uri, doDecryption, key);
+
+                    //Console.WriteLine($"Downloaded {stateId} for {propId}!");
+                    log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
+                }
+                duration.Value++;
+            }
+            var bodyshapes = xmlDoc.Elements("bodyshape");
+            foreach (var bodyshape in bodyshapes)
+            {
+                var bodyId = bodyshape.Attributes().Where(a => a.Name == "id").Single().Value;
+                var actionpacks = bodyshape.Elements("actionpack");
+                var libraries = bodyshape.Elements("library");
+                duration.Maximum = libraries.Count();
+                duration.Value = 0;
+                foreach (var library in libraries)
+                {
+                    var libraryType = library.Attributes().Where(a => a.Name == "type").Single().Value;
+                    var libraryId = library.Attributes().Where(a => a.Name == "path").Single().Value;
+                    var libraryThumb = library.Attributes().Where(a => a.Name == "thumb").Single().Value;
+                    uri = $"{serverAddress}{themeId}/{libraryType}/";
+                    var localDir = $".\\cc_store\\{themeId}\\{libraryType}\\";
+                    Directory.CreateDirectory(localDir);
+
+                    localFileName = $".\\cc_store\\{themeId}\\{libraryType}\\";
+
+                    await downloadAsset(localFileName + libraryId + ".swf", uri + libraryId + ".swf", false, null);
+                    log.Text = $"Downloaded library '{libraryId}.swf' ({libraryType}).";
+                    await downloadAsset(localFileName + libraryThumb, uri + libraryThumb, doDecryption, key);
+                    log.Text = $"Downloaded library thumb '{libraryThumb}' ({libraryType}).";
+                    duration.Value++;
+                }
+                foreach (var actionpack in actionpacks)
+                {
+                    var actionpackName = actionpack.Attributes().Where(a => a.Name == "id").Single().Value;
+                    var actions = actionpack.Elements("action");
+                    duration.Maximum = actions.Count();
+                    duration.Value = 0;
+                    foreach (var action in actions)
+                    {
+                        var actionId = action.Attributes().Where(a => a.Name == "id").Single().Value;
+                        uri = $"{serverAddress}{themeId}/freeaction/{bodyId}/{actionId}.swf";
+
+
+                        var localDir = $".\\cc_store\\{themeId}\\freeaction\\{bodyId}";
+                        Directory.CreateDirectory(localDir);
+
+                        localFileName = $".\\cc_store\\{themeId}\\freeaction\\{bodyId}\\{actionId}.swf";
+                        await downloadAsset(localFileName, uri, doDecryption, key);
+                        log.Text = $"Downloaded freeaction '{actionId}' for bodytype '{bodyId}' (actionpack {actionpackName}).";
+                        duration.Value++;
+                    }
+                }
+                components = bodyshape.Elements("component");
+                duration.Maximum = components.Count();
+                duration.Value = 0;
+                foreach (var component in components)
+                {
+                    //APPARENTLY I need this dumb bullshit now even though my original code didn't, did dot.net change how this worked?
+                    var componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
+                    var componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
+                    var states = component.Elements("state");
+                    foreach (var state in states)
+                    {
+
+                        var stateId = state.Attributes().Where(a => a.Name == "id").Single().Value;
+
+                        uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{stateId}.swf";
+                        var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
+                        Directory.CreateDirectory(localDir);
+
+                        localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
+                        await downloadAsset(localFileName, uri, doDecryption, key);
+
+                        //Console.WriteLine($"Downloaded {stateId} for {propId}!");
+                        log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
+                    }
+                    duration.Value++;
+                }
+
+            }
+            if (carryThemeId == null)
+            {
+                returnWithMessage("The proceedure has completed.");
+            }
+            return;
+        }
+
+        public async Task GoAnimateRip(bool lookForCCTheme)
         {
             //get user input
             var serverAddress = dom.Text;
@@ -78,26 +283,34 @@ namespace GATOOLS
             var themeId = tid.Text;
             var doDecryption = checkBox1.Checked;
             byte[] key = Encoding.ASCII.GetBytes($"{encrypt.Text}");
-            button1.Text = "Working...";
-
-            //disable user interaction even though it technically doesn't matter
-            encrypt.Enabled = false;
-            checkBox1.Enabled = false;
-            tid.Enabled = false;
-            dom.Enabled = false;
+            lockControl();
 
             //Download and load xml
             var uri = $"{serverAddress}{themeId}/theme.xml";
             var localFileName = $".\\{themeId}\\theme.xml";
             var dir = $".\\{themeId}\\";
+            String ccThemeRefrence = null;
             Directory.CreateDirectory(dir);
+            XElement xmlDoc = null;
 
             await downloadAsset(localFileName, uri, false, null);
-            XElement xmlDoc = XElement.Load(localFileName);
-
-            //To-Do: Refactor the loading bar thing
-            bar.Value = 0;
+            try
+            {
+                xmlDoc = XElement.Load(localFileName);
+            }
+            catch
+            {
+                returnWithMessage("An error occured parsing the theme.xml file!");
+                return;
+            }
+            if (lookForCCTheme)
+            {
+                ccThemeRefrence = xmlDoc.Attributes().Where(a => a.Name == "cc_theme_id").Single().Value;
+            }
             var props = xmlDoc.Elements("prop");
+            //Reworked bar that actually isn't shite
+            duration.Maximum = props.Count();
+            duration.Value = 0;
             foreach (var prop in props)
             {
 
@@ -118,7 +331,7 @@ namespace GATOOLS
                         await downloadAsset(localFileName, uri, doDecryption, key);
 
                         //Console.WriteLine($"Downloaded {stateId} for {propId}!");
-                        ACTION.Text = $"Downloaded {stateId} for {propId}!";
+                        log.Text = $"Downloaded state '{stateId}' for prop '{propId}'.";
                     }
                 }
                 else
@@ -133,16 +346,17 @@ namespace GATOOLS
 
                     await downloadAsset(localFileName, uri, doDecryption, key);
                     //Console.WriteLine($"Downloaded {propId}!");
-                    ACTION.Text = $"Downloaded {propId}!";
+                    log.Text = $"Downloaded prop '{propId}'.";
                 }
+                duration.Value++;
             }
             //Console.WriteLine("Props: OK");
-            bar.Value = 1;
 
 
 
             var effects = xmlDoc.Descendants("effect");
-
+            duration.Maximum = effects.Count();
+            duration.Value = 0;
             foreach (var effect in effects)
             {
                 var effectId = effect.Attributes().Where(a => a.Name == "id").Single().Value;
@@ -157,13 +371,14 @@ namespace GATOOLS
                 await downloadAsset(localFileName, uri, doDecryption, key);
 
                 //Console.WriteLine($"Downloaded {effectId}!");
-                ACTION.Text = $"Downloaded {effectId}!";
+                log.Text = $"Downloaded effect '{effectId}'.";
+                duration.Value++;
             }
             //Console.WriteLine("Effects: OK");
-            bar.Value = 2;
 
             var backgroundsthumb = xmlDoc.Descendants("compositebg");
-
+            duration.Maximum = backgroundsthumb.Count();
+            duration.Value = 0;
             foreach (var compositebg in backgroundsthumb)
             {
                 var bgThumb = compositebg.Attributes().Where(a => a.Name == "thumb").Single().Value;
@@ -177,13 +392,14 @@ namespace GATOOLS
 
                 await downloadAsset(localFileName, uri, false, null);
                 //Console.WriteLine($"Downloaded {bgThumb}!");
-                ACTION.Text = $"Downloaded {bgThumb}!";
+                log.Text = $"Downloaded background thumbnail '{bgThumb}'.";
+                duration.Value++;
             }
             //Console.WriteLine("Background Thumbnails: OK");
-            bar.Value = 3;
 
             var backgrounds = xmlDoc.Descendants("background");
-
+            duration.Maximum = backgrounds.Count();
+            duration.Value = 0;
             foreach (var background in backgrounds)
             {
                 var bgId = background.Attributes().Where(a => a.Name == "id").Single().Value;
@@ -197,13 +413,14 @@ namespace GATOOLS
 
                 await downloadAsset(localFileName, uri, doDecryption, key);
                 //Console.WriteLine($"Downloaded {bgId}!");
-                ACTION.Text = $"Downloaded {bgId}!";
+                log.Text = $"Downloaded background '{bgId}'.";
+                duration.Value++;
             }
             //Console.WriteLine("Backrounds: OK");
-            bar.Value = 4;
 
             var sounds = xmlDoc.Descendants("sound");
-
+            duration.Maximum = sounds.Count();
+            duration.Value = 0;
             foreach (var sound in sounds)
             {
                 var variants = sound.Descendants("variation");
@@ -218,7 +435,7 @@ namespace GATOOLS
 
                 await downloadAsset(localFileName, uri, (doDecryption && soundId.Contains(".swf")), key);
                 //Console.WriteLine($"Downloaded {soundId}!");
-                ACTION.Text = $"Downloaded {soundId}!";
+                log.Text = $"Downloaded sound '{soundId}'.";
                 foreach (var variant in variants)
                 {
                     soundId = variant.Attributes().Where(a => a.Name == "id").Single().Value;
@@ -228,13 +445,15 @@ namespace GATOOLS
                     localFileName = $".\\{themeId}\\sound\\{soundId}";
 
                     await downloadAsset(localFileName, uri, (doDecryption && soundId.Contains(".swf")), key);
-                    ACTION.Text = $"Downloaded varriant {soundId}!";
+                    log.Text = $"Downloaded sound varriant '{soundId}'.";
                 }
+                duration.Value++;
             }
             //Console.WriteLine("Sounds: OK");
-            bar.Value = 5;
 
             var chars = xmlDoc.Descendants("char");
+            duration.Maximum = chars.Count();
+            duration.Value = 0;
             foreach (var character in chars)
             {
                 var charId = character.Attributes().Where(a => a.Name == "id").Single().Value;
@@ -242,7 +461,7 @@ namespace GATOOLS
                 var actions = character.Descendants("action");
                 var motions = character.Descendants("motion");
                 var facials = character.Descendants("facial");
-                ACTION.Text = $"Starting on {charId}!";
+                log.Text = $"Starting on new character ({charId}).";
                 //Console.WriteLine($"Starting on {charId}!");
 
                 foreach (var action in actions)
@@ -259,7 +478,7 @@ namespace GATOOLS
                     await downloadAsset(localFileName, uri, doDecryption, key);
 
                     //Console.WriteLine($"Downloaded {actionId} for {charId}!");
-                    ACTION.Text = $"Downloaded {actionId} for {charId}!";
+                    log.Text = $"Downloaded action '{actionId}' for character '{charId}'.";
                 }
 
                 foreach (var motion in motions)
@@ -276,7 +495,7 @@ namespace GATOOLS
                     await downloadAsset(localFileName, uri, doDecryption, key);
 
                     //Console.WriteLine($"Downloaded {motionId} for {charId}!");
-                    ACTION.Text = $"Downloaded {motionId} for {charId}!";
+                    log.Text = $"Downloaded motion '{motionId}' for character '{charId}'.";
                 }
 
                 foreach (var facial in facials)
@@ -294,12 +513,15 @@ namespace GATOOLS
                     await downloadAsset(localFileName, uri, doDecryption, key);
 
                     //Console.WriteLine($"Downloaded {facialId} for {charId}!");
-                    ACTION.Text = $"Downloaded {facialId} for {charId}!";
+                    log.Text = $"Downloaded facial animation '{facialId}' for character '{charId}'.";
                 }
+                duration.Value++;
 
 
             }
             var widgets = xmlDoc.Descendants("widget");
+            duration.Maximum = widgets.Count();
+            duration.Value = 0;
             foreach (var widget in widgets)
             {
                 var widgetThumb = widget.Attributes().Where(a => a.Name == "thumb").Single().Value;
@@ -312,14 +534,16 @@ namespace GATOOLS
                 localFileName = $".\\{themeId}\\widget\\{widgetThumb}";
                 //Console.WriteLine(localFileName);
 
-                await downloadAsset(localFileName, uri, doDecryption, key);
+                await downloadAsset(localFileName, uri, false, key);
 
                 //Console.WriteLine($"Downloaded {facialId} for {charId}!");
-                ACTION.Text = $"Downloaded {widgetThumb}!";
-
+                log.Text = $"Downloaded widget thumbnail '{widgetThumb}'.";
+                duration.Value++;
             }
 
             var flows = xmlDoc.Descendants("flow");
+            duration.Maximum = flows.Count();
+            duration.Value = 0;
             foreach (var flow in flows)
             {
                 var flowId = flow.Attributes().Where(a => a.Name == "id").Single().Value;
@@ -334,25 +558,24 @@ namespace GATOOLS
                 //Console.WriteLine(localFileName);
 
                 await downloadAsset(localFileName+flowId, uri+flowId, doDecryption, key);
-                await downloadAsset(localFileName+flowThumb,uri+flowThumb, doDecryption, key);
+                await downloadAsset(localFileName+flowThumb,uri+flowThumb, false, null);
 
 
                 //Console.WriteLine($"Downloaded {facialId} for {charId}!");
-                ACTION.Text = $"Downloaded {flowId} and {flowThumb}!";
+                log.Text = $"Downloaded downloaded flow frame '{flowId}'!";
+                duration.Value++;
 
             }
             //Console.WriteLine("Characters: OK");
-            bar.Value = 6;
             //Console.WriteLine("GoAnimateRipper");
             //Console.WriteLine("Written by Poley Magik");
             //Console.WriteLine("Thanks for using this tool");
-            ACTION.Text = "Done!";
-            button1.Enabled = true;
-            button1.Text = "Start Ripping";
-            encrypt.Enabled = checkBox1.Checked;
-            checkBox1.Enabled = true;
-            tid.Enabled = true;
-            dom.Enabled = true;
+            //JUMP TO ME
+            if (ccThemeRefrence != null)
+            {
+                await GoAnimateCCRip(ccThemeRefrence);
+            }
+            returnWithMessage("The proceedure has completed.");
         }
 
         public Form1()
@@ -363,7 +586,7 @@ namespace GATOOLS
         async private void button1_Click(object sender, EventArgs e)
         {
             button1.Enabled = false;
-            await GoAnimateRip();
+            await startTask();
         }
 
         private void encrypt_SelectedIndexChanged(object sender, EventArgs e)
@@ -383,22 +606,7 @@ namespace GATOOLS
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            encrypt.Enabled = checkBox1.Checked;
-        }
-
-        private void bar_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
-        {
-
+            reencrypt.Enabled = checkBox1.Checked;
         }
 
         private void dom_TextChanged(object sender, EventArgs e)
@@ -407,6 +615,33 @@ namespace GATOOLS
         }
 
         private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void ThemeCCCheck_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void CCCheck_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void label2_Click_1(object sender, EventArgs e)
         {
 
         }

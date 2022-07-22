@@ -1,0 +1,17 @@
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\bin\Release\GATOOLS.exe.config
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\bin\Release\GATOOLS.exe
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\bin\Release\GATOOLS.pdb
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\bin\Release\en-US\GATOOLS.resources.dll
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\bin\Release\en\GATOOLS.resources.dll
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.csproj.AssemblyReference.cache
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.csproj.SuggestedBindingRedirects.cache
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.Form1.resources
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.Properties.Resources.resources
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.Form1.en-US.resources
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.Form1.en.resources
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.csproj.GenerateResource.cache
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.csproj.CoreCompileInputs.cache
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\en-US\GATOOLS.resources.dll
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\en\GATOOLS.resources.dll
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.exe
+C:\Users\jayde\Documents\GoAnimateRipper2\GATOOLS\obj\Release\GATOOLS.pdb
