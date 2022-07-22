@@ -150,6 +150,7 @@ namespace GATOOLS
             {
                 var componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
                 var componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
+                var componentThumb = component.Attributes().Where(a => a.Name == "thumb").Single().Value;
                 var states = component.Elements("state");
                 uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/";
                 var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
@@ -174,7 +175,7 @@ namespace GATOOLS
 
                     }
                 }
-                await downloadAsset(localFileName + "thumbnail.swf", uri + "thumbnail.swf", doDecryption, key);
+                await downloadAsset(localFileName + componentThumb, uri + componentThumb, doDecryption, key);
                 log.Text = $"Downloaded thumbnail for component '{componentId}' ({componentType}).";
 
                 foreach (var state in states)
@@ -245,18 +246,26 @@ namespace GATOOLS
                 duration.Value = 0;
                 foreach (var component in components)
                 {
-                    //APPARENTLY I need this dumb bullshit now even though my original code didn't, did dot.net change how this worked?
+                    //APPARENTLY I need this dumb bullshit now even though my original code didn't.
                     var componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
+                    var componentThumb = component.Attributes().Where(a => a.Name == "thumb").Single().Value;
                     var componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
                     var states = component.Elements("state");
+                    var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
+                    Directory.CreateDirectory(localDir);
+                    uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{componentThumb}";
+                    localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{componentThumb}";
+                    await downloadAsset(localFileName, uri, doDecryption, key);
+                    log.Text = $"Downloaded state '{componentThumb}' for component '{componentId}' ({componentType}).";
+
                     foreach (var state in states)
                     {
 
                         var stateId = state.Attributes().Where(a => a.Name == "id").Single().Value;
 
                         uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{stateId}.swf";
-                        var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
-                        Directory.CreateDirectory(localDir);
+                        //localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
+                        //Directory.CreateDirectory(localDir);
 
                         localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
                         await downloadAsset(localFileName, uri, doDecryption, key);
