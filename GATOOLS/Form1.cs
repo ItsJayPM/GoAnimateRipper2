@@ -190,12 +190,13 @@ namespace GATOOLS
                 {
 
                     var stateId = state.Attributes().Where(a => a.Name == "id").Single().Value;
+                    var stateFilename = state.Attributes().Where(a => a.Name == "filename").Single().Value;
 
-                    uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{stateId}.swf";
+                    uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{stateFilename}";
                     localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
                     Directory.CreateDirectory(localDir);
 
-                    localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
+                    localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateFilename}";
                     await downloadAsset(localFileName, uri, doDecryption, key);
 
                     log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
