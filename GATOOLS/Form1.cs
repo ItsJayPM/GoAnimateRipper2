@@ -224,8 +224,11 @@ namespace GATOOLS
 
                     await downloadAsset(localFileName + libraryId + ".swf", uri + libraryId + ".swf", false, null);
                     log.Text = $"Downloaded library '{libraryId}.swf' ({libraryType}).";
-                    await downloadAsset(localFileName + libraryThumb, uri + libraryThumb, doDecryption, key);
-                    log.Text = $"Downloaded library thumb '{libraryThumb}' ({libraryType}).";
+                    if (libraryThumb != libraryId + ".swf")
+                    {
+                        await downloadAsset(localFileName + libraryThumb, uri + libraryThumb, doDecryption, key);
+                        log.Text = $"Downloaded library thumb '{libraryThumb}' ({libraryType}).";
+                    }
                     duration.Value++;
                 }
                 foreach (var actionpack in actionpacks)
