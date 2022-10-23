@@ -190,7 +190,6 @@ namespace GATOOLS
                     localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
                     await downloadAsset(localFileName, uri, doDecryption, key);
 
-                    //Console.WriteLine($"Downloaded {stateId} for {propId}!");
                     log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
                 }
                 duration.Value++;
@@ -198,6 +197,7 @@ namespace GATOOLS
             var bodyshapes = xmlDoc.Elements("bodyshape");
             foreach (var bodyshape in bodyshapes)
             {
+                //Console.WriteLine("OK.");
                 var bodyId = bodyshape.Attributes().Where(a => a.Name == "id").Single().Value;
                 var actionpacks = bodyshape.Elements("actionpack");
                 var libraries = bodyshape.Elements("library");
@@ -231,11 +231,11 @@ namespace GATOOLS
                         var actionId = action.Attributes().Where(a => a.Name == "id").Single().Value;
                         uri = $"{serverAddress}{themeId}/freeaction/{bodyId}/{actionId}.swf";
 
-
                         var localDir = $".\\cc_store\\{themeId}\\freeaction\\{bodyId}";
                         Directory.CreateDirectory(localDir);
 
                         localFileName = $".\\cc_store\\{themeId}\\freeaction\\{bodyId}\\{actionId}.swf";
+                        //Console.WriteLine(localDir + "," + localFileName);
                         await downloadAsset(localFileName, uri, doDecryption, key);
                         log.Text = $"Downloaded freeaction '{actionId}' for bodytype '{bodyId}' (actionpack {actionpackName}).";
                         duration.Value++;
@@ -250,6 +250,10 @@ namespace GATOOLS
                     var componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
                     var componentThumb = component.Attributes().Where(a => a.Name == "thumb").Single().Value;
                     var componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
+                    if (componentType == "freeaction")
+                    {
+                        break;
+                    }
                     var states = component.Elements("state");
                     var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
                     Directory.CreateDirectory(localDir);
