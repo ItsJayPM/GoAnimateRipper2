@@ -160,10 +160,6 @@ namespace GATOOLS
 
                 if (componentType == "mouth")
                 {
-                    await downloadAsset(localFileName + "talk.swf", uri + "talk.swf", doDecryption, key);
-                    log.Text = $"Downloaded state 'talk.swf' for component '{componentId}' ({componentType}).";
-                    await downloadAsset(localFileName + "talk_sync.swf", uri + "talk_sync.swf", doDecryption, key);
-                    log.Text = $"Downloaded state 'talk_sync.swf' for component '{componentId}' ({componentType}).";
                     if (themeId == "family")
                     {
                         await downloadAsset(localFileName + "talk_sad_sync.swf", uri + "talk_sad_sync.swf", doDecryption, key);
@@ -173,6 +169,18 @@ namespace GATOOLS
                         await downloadAsset(localFileName + "talk_angry_sync.swf", uri + "talk_angry_sync.swf", doDecryption, key);
                         log.Text = $"Downloaded state 'talk_angry_sync.swf' for component '{componentId}' ({componentType}).";
 
+                    }
+                    if (themeId == "anime" || themeId == "ninjaanime" || themeId == "spacecitizens") //wack
+                    {
+                        await downloadAsset(localFileName + "side_talk_sync.swf", uri + "side_talk_sync.swf", doDecryption, key);
+                        log.Text = $"Downloaded state 'side_talk_sync.swf' for component '{componentId}' ({componentType}).";
+                    }
+                    else
+                    {
+                        await downloadAsset(localFileName + "talk.swf", uri + "talk.swf", doDecryption, key);
+                        log.Text = $"Downloaded state 'talk.swf' for component '{componentId}' ({componentType}).";
+                        await downloadAsset(localFileName + "talk_sync.swf", uri + "talk_sync.swf", doDecryption, key);
+                        log.Text = $"Downloaded state 'talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                 }
                 await downloadAsset(localFileName + componentThumb, uri + componentThumb, doDecryption, key);
