@@ -170,7 +170,7 @@ namespace GATOOLS
                         log.Text = $"Downloaded state 'talk_angry_sync.swf' for component '{componentId}' ({componentType}).";
 
                     }
-                    if (themeId == "anime" || themeId == "ninjaanime" || themeId == "spacecitizens") //wack
+                    if (themeId == "anime" || themeId == "ninjaanime" || themeId == "spacecitizen") //wack
                     {
                         await downloadAsset(localFileName + "side_talk_sync.swf", uri + "side_talk_sync.swf", doDecryption, key);
                         log.Text = $"Downloaded state 'side_talk_sync.swf' for component '{componentId}' ({componentType}).";
