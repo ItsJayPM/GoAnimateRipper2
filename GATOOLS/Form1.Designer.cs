@@ -65,14 +65,14 @@ namespace GATOOLS
             this.encrypt.AccessibleName = "";
             this.encrypt.FormattingEnabled = true;
             this.encrypt.Items.AddRange(new object[] {
-            "sorrypleasetryagainlater",
-            "g0o1a2n3i4m5a6t7e"});
+            "g0o1a2n3i4m5a6t7e",
+            "sorrypleasetryagainlater"});
             this.encrypt.Location = new System.Drawing.Point(471, 99);
             this.encrypt.Margin = new System.Windows.Forms.Padding(4);
             this.encrypt.Name = "encrypt";
             this.encrypt.Size = new System.Drawing.Size(309, 24);
             this.encrypt.TabIndex = 1;
-            this.encrypt.Text = "sorrypleasetryagainlater";
+            this.encrypt.Text = "g0o1a2n3i4m5a6t7e";
             this.encrypt.SelectedIndexChanged += new System.EventHandler(this.encrypt_SelectedIndexChanged);
             // 
             // label1
@@ -137,7 +137,7 @@ namespace GATOOLS
             this.dom.Name = "dom";
             this.dom.Size = new System.Drawing.Size(698, 22);
             this.dom.TabIndex = 10;
-            this.dom.Text = "https://d3v4eglovri8yt.cloudfront.net/store/3a981f5cb2739137/";
+            this.dom.Text = "https://flashthemes.net/static/store/";
             this.dom.TextChanged += new System.EventHandler(this.dom_TextChanged);
             // 
             // ThemeCheck
@@ -232,7 +232,7 @@ namespace GATOOLS
             this.key2.Name = "key2";
             this.key2.Size = new System.Drawing.Size(309, 24);
             this.key2.TabIndex = 19;
-            this.key2.Text = "g0o1a2n3i4m5a6t7e";
+            this.key2.Text = "sorrypleasetryagainlater";
             // 
             // Form1
             // 

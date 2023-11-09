@@ -120,7 +120,9 @@ namespace GATOOLS
         public async Task GoAnimateCCRip(String carryThemeId)
         {
             lockControl();
-            var serverAddress = dom.Text + "cc_store/";
+            var serverAddress = dom.Text;
+            if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
+            serverAddress = dom.Text + "cc_store/";
             var httpClient = new HttpClient();
             var themeId = carryThemeId != null ? carryThemeId : tid.Text;
             var doDecryption = checkBox1.Checked;
@@ -304,6 +306,7 @@ namespace GATOOLS
         {
             //get user input
             var serverAddress = dom.Text;
+            if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
             var httpClient = new HttpClient();
             var themeId = tid.Text;
             var doDecryption = checkBox1.Checked;
