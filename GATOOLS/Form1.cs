@@ -17,8 +17,14 @@ namespace GATOOLS
 {
     public partial class Form1 : Form
     {
+        //expose these to the whole class for new feature (and just because it's better)
+        byte[] key;
+        bool doDecryption;
+        HttpClient httpClient = new HttpClient();
+        int cycle = 0;
+
         public static byte[] Decrypt(byte[] pwd, byte[] data)
-        { //Not gonna notate this RC4 stuff
+        {
             int a, i, j, k, tmp;
             int[] key, box;
             byte[] cipher;
@@ -53,32 +59,60 @@ namespace GATOOLS
             }
             return cipher;
         }
-        public async Task downloadAsset(string localFileName, string uriDownload, bool decrypt, byte[] keyt)
+        public async Task DownloadAsset(string localFileName, string uriDownload, bool decrypt)
         {
-            var httpClient = new HttpClient();
-            byte[] key = keyt;
+            if (JPEXStoggle.Checked && File.Exists(localFileName.Replace(".swf", ".fla")))
+            {
+                Console.WriteLine(localFileName.Replace(".swf", ".fla"));
+                return;
+            }
             using (var response = await httpClient.GetAsync(uriDownload))
             {
                 var data = await response.Content.ReadAsByteArrayAsync();
-                if (decrypt)
+                if (decrypt && key == null) DetermineKey(data);
+                if (decrypt && doDecryption)
                 {
-                    byte[] deCypheredText = Decrypt(key, data);
-                    if (reencrypt.Checked)
+                    data = Decrypt(key, data);
+                }
+
+                if (reencrypt.Checked && decrypt)
+                {
+                    key = Encoding.ASCII.GetBytes($"{key2.Text}");
+                    data = Decrypt(key, data);
+                }
+
+                File.WriteAllBytes(localFileName, data);
+
+                if (JPEXStoggle.Checked && decrypt)
+                {
+                    System.Diagnostics.Process process = new System.Diagnostics.Process();
+                    var cmd = $"ffdec.bat -export fla \"{System.AppContext.BaseDirectory + localFileName.Substring(2, localFileName.LastIndexOf("\\") - 2)}\"  \"{System.AppContext.BaseDirectory + localFileName.Substring(2)}\"";
+                    System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c " + cmd);
+                    if (hideCMD.Checked)startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                    startInfo.FileName = "cmd.exe";
+                    startInfo.WorkingDirectory = @"C:\Program Files (x86)\FFDec";
+                    Console.WriteLine(startInfo.Arguments);
+                    process.StartInfo = startInfo;
+                    process.Start();
+                    process.WaitForExit();
+                    if (deleteAfter.Checked)
                     {
-                        key = Encoding.ASCII.GetBytes($"{key2.Text}");
-                        deCypheredText = Decrypt(key, deCypheredText);
+                        try
+                        {
+                            File.Delete(localFileName);
+                        }
+                        catch
+                        {
+                            log.Text = "File in use; Skipping deletion...";
+                        }
                     }
-                    File.WriteAllBytes(localFileName, deCypheredText);
                 }
-                else
-                {
-                    File.WriteAllBytes(localFileName, data);
-                }
+
                 return;
             }
         }
 
-        public async Task startTask()
+        public async Task StartProceedure()
         {
             if (ThemeCheck.Checked)
             {
@@ -93,7 +127,7 @@ namespace GATOOLS
                 await GoAnimateCCRip(null);
             }
         }
-        public void lockControl()
+        public void LockControl()
         {
             button1.Enabled = false;
             button1.Text = "Working...";
@@ -104,44 +138,70 @@ namespace GATOOLS
             tid.Enabled = false;
             dom.Enabled = false;
         }
-        public void returnWithMessage(String mes)
+
+        //Lifted more or less from GoAnimate itself
+        private bool IsFlashPrefix(byte[] data)
+		{
+			string prefix = System.Text.Encoding.UTF8.GetString(data).Substring(0,3);
+			return prefix == "CWS" || prefix == "FWS";
+		}
+
+
+        public void DetermineKey(byte[] data)
+        {
+            if (!IsFlashPrefix(data))
+            {
+                foreach (string tkey in encrypt.Items)
+                {
+                    key = Encoding.ASCII.GetBytes(tkey);
+                    if (IsFlashPrefix(Decrypt(key, data)))
+                    {
+                        return;
+                    }
+                }
+            }
+            doDecryption = false;
+        }
+        public void ReturnWithMessage(String mes)
         {
             log.Text = mes;
             button1.Enabled = true;
             button1.Text = "Start Ripping";
-            encrypt.Enabled = true;
-            reencrypt.Enabled = checkBox1.Checked;
-            key2.Enabled = true;
-            checkBox1.Enabled = true;
+            JPEXStoggle.Enabled = true;
+            deleteAfter.Enabled = JPEXStoggle.Checked;
+            hideCMD.Enabled = JPEXStoggle.Checked;
+            encrypt.Enabled = !JPEXStoggle.Checked;
+            reencrypt.Enabled = !JPEXStoggle.Checked && checkBox1.Checked;
+            key2.Enabled = !JPEXStoggle.Checked;
+            checkBox1.Enabled = !JPEXStoggle.Checked;
             tid.Enabled = true;
             dom.Enabled = true;
             return;
         }
         public async Task GoAnimateCCRip(String carryThemeId)
         {
-            lockControl();
-            var serverAddress = dom.Text;
+            LockControl();
+            string serverAddress = dom.Text;
             if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
             serverAddress = dom.Text + "cc_store/";
-            var httpClient = new HttpClient();
-            var themeId = carryThemeId != null ? carryThemeId : tid.Text;
-            var doDecryption = checkBox1.Checked;
-            byte[] key = Encoding.ASCII.GetBytes($"{encrypt.Text}");
-
-            var uri = $"{serverAddress}{themeId}/cc_theme.xml";
-            var localFileName = $".\\cc_store\\{themeId}\\cc_theme.xml";
-            var dir = $".\\cc_store\\{themeId}\\";
+            HttpClient httpClient = new HttpClient();
+            string themeId = carryThemeId != null ? carryThemeId : tid.Text;
+            doDecryption = checkBox1.Checked;
+            if (encrypt.Text != "(auto)") key = Encoding.ASCII.GetBytes($"{encrypt.Text}");
+            string uri = $"{serverAddress}{themeId}/cc_theme.xml";
+            string localFileName = $".\\cc_store\\{themeId}\\cc_theme.xml";
+            string dir = $".\\cc_store\\{themeId}\\";
             Directory.CreateDirectory(dir);
             XElement xmlDoc = null;
 
-            await downloadAsset(localFileName, uri, false, null);
+            await DownloadAsset(localFileName, uri, false);
             try
             {
                 xmlDoc = XElement.Load(localFileName);
             }
             catch
             {
-                returnWithMessage("An error occured parsing the cc_theme.xml file!");
+                ReturnWithMessage("An error occured parsing the cc_theme.xml file! (Are you sure the theme you typed exists?)");
                 return;
             }
             var components = xmlDoc.Elements("component");
@@ -150,42 +210,41 @@ namespace GATOOLS
             duration.Value = 0;
             foreach (var component in components)
             {
-                var componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
-                var componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
-                var componentThumb = component.Attributes().Where(a => a.Name == "thumb").Single().Value;
+                string componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
+                string componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
+                string componentThumb = component.Attributes().Where(a => a.Name == "thumb").Single().Value;
                 var states = component.Elements("state");
                 uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/";
-                var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
+                string localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
                 Directory.CreateDirectory(localDir);
 
                 localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\";
-
                 if (componentType == "mouth")
                 {
                     if (themeId == "family")
                     {
-                        await downloadAsset(localFileName + "talk_sad_sync.swf", uri + "talk_sad_sync.swf", doDecryption, key);
+                        await DownloadAsset(localFileName + "talk_sad_sync.swf", uri + "talk_sad_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk_sad_sync.swf' for component '{componentId}' ({componentType}).";
-                        await downloadAsset(localFileName + "talk_happy_sync.swf", uri + "talk_happy_sync.swf", doDecryption, key);
+                        await DownloadAsset(localFileName + "talk_happy_sync.swf", uri + "talk_happy_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk_happy_sync.swf' for component '{componentId}' ({componentType}).";
-                        await downloadAsset(localFileName + "talk_angry_sync.swf", uri + "talk_angry_sync.swf", doDecryption, key);
+                        await DownloadAsset(localFileName + "talk_angry_sync.swf", uri + "talk_angry_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk_angry_sync.swf' for component '{componentId}' ({componentType}).";
 
                     }
                     if (themeId == "anime" || themeId == "ninjaanime" || themeId == "spacecitizen") //wack
                     {
-                        await downloadAsset(localFileName + "side_talk_sync.swf", uri + "side_talk_sync.swf", doDecryption, key);
+                        await DownloadAsset(localFileName + "side_talk_sync.swf", uri + "side_talk_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'side_talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                     else
                     {
-                        await downloadAsset(localFileName + "talk.swf", uri + "talk.swf", doDecryption, key);
+                        await DownloadAsset(localFileName + "talk.swf", uri + "talk.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk.swf' for component '{componentId}' ({componentType}).";
-                        await downloadAsset(localFileName + "talk_sync.swf", uri + "talk_sync.swf", doDecryption, key);
+                        await DownloadAsset(localFileName + "talk_sync.swf", uri + "talk_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                 }
-                await downloadAsset(localFileName + componentThumb, uri + componentThumb, doDecryption, key);
+                await DownloadAsset(localFileName + componentThumb, uri + componentThumb, doDecryption);
                 log.Text = $"Downloaded thumbnail for component '{componentId}' ({componentType}).";
 
                 foreach (var state in states)
@@ -199,7 +258,7 @@ namespace GATOOLS
                     Directory.CreateDirectory(localDir);
 
                     localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateFilename}";
-                    await downloadAsset(localFileName, uri, doDecryption, key);
+                    await DownloadAsset(localFileName, uri, doDecryption);
 
                     log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
                 }
@@ -208,8 +267,11 @@ namespace GATOOLS
             var bodyshapes = xmlDoc.Elements("bodyshape");
             foreach (var bodyshape in bodyshapes)
             {
-                //Console.WriteLine("OK.");
                 var bodyId = bodyshape.Attributes().Where(a => a.Name == "id").Single().Value;
+
+
+                    //Console.WriteLine("OK.");
+                    
                 var actionpacks = bodyshape.Elements("actionpack");
                 var libraries = bodyshape.Elements("library");
                 duration.Maximum = libraries.Count();
@@ -225,11 +287,11 @@ namespace GATOOLS
 
                     localFileName = $".\\cc_store\\{themeId}\\{libraryType}\\";
 
-                    await downloadAsset(localFileName + libraryId + ".swf", uri + libraryId + ".swf", false, null);
+                    await DownloadAsset(localFileName + libraryId + ".swf", uri + libraryId + ".swf", false);
                     log.Text = $"Downloaded library '{libraryId}.swf' ({libraryType}).";
                     if (libraryThumb != libraryId + ".swf")
                     {
-                        await downloadAsset(localFileName + libraryThumb, uri + libraryThumb, doDecryption, key);
+                        await DownloadAsset(localFileName + libraryThumb, uri + libraryThumb, doDecryption);
                         log.Text = $"Downloaded library thumb '{libraryThumb}' ({libraryType}).";
                     }
                     duration.Value++;
@@ -250,7 +312,7 @@ namespace GATOOLS
 
                         localFileName = $".\\cc_store\\{themeId}\\freeaction\\{bodyId}\\{actionId}.swf";
                         //Console.WriteLine(localDir + "," + localFileName);
-                        await downloadAsset(localFileName, uri, doDecryption, key);
+                        await DownloadAsset(localFileName, uri, doDecryption);
                         log.Text = $"Downloaded freeaction '{actionId}' for bodytype '{bodyId}' (actionpack {actionpackName}).";
                         duration.Value++;
                     }
@@ -271,10 +333,15 @@ namespace GATOOLS
                     var states = component.Elements("state");
                     var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
                     Directory.CreateDirectory(localDir);
-                    uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{componentThumb}";
-                    localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{componentThumb}";
-                    await downloadAsset(localFileName, uri, doDecryption, key);
-                    log.Text = $"Downloaded state '{componentThumb}' for component '{componentId}' ({componentType}).";
+                        
+                    //This is a small thing but it created a HUGE bug in one specific case lemme tell you
+                    if (componentType != "skeleton") 
+                    {
+                        uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{componentThumb}";
+                        localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{componentThumb}";
+                        await DownloadAsset(localFileName, uri, doDecryption);
+                        log.Text = $"Downloaded state '{componentThumb}' for component '{componentId}' ({componentType}).";
+                    }
 
                     foreach (var state in states)
                     {
@@ -286,7 +353,7 @@ namespace GATOOLS
                         //Directory.CreateDirectory(localDir);
 
                         localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
-                        await downloadAsset(localFileName, uri, doDecryption, key);
+                        await DownloadAsset(localFileName, uri, doDecryption);
 
                         //Console.WriteLine($"Downloaded {stateId} for {propId}!");
                         log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
@@ -297,7 +364,7 @@ namespace GATOOLS
             }
             if (carryThemeId == null)
             {
-                returnWithMessage("The proceedure has completed.");
+                ReturnWithMessage("The proceedure has completed.");
             }
             return;
         }
@@ -307,11 +374,10 @@ namespace GATOOLS
             //get user input
             var serverAddress = dom.Text;
             if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
-            var httpClient = new HttpClient();
             var themeId = tid.Text;
-            var doDecryption = checkBox1.Checked;
-            byte[] key = Encoding.ASCII.GetBytes($"{encrypt.Text}");
-            lockControl();
+            doDecryption = checkBox1.Checked;
+            if (encrypt.Text != "(auto)") key = Encoding.ASCII.GetBytes($"{encrypt.Text}");
+            LockControl();
 
             //Download and load xml
             var uri = $"{serverAddress}{themeId}/theme.xml";
@@ -321,14 +387,14 @@ namespace GATOOLS
             Directory.CreateDirectory(dir);
             XElement xmlDoc = null;
 
-            await downloadAsset(localFileName, uri, false, null);
+            await DownloadAsset(localFileName, uri, false);
             try
             {
                 xmlDoc = XElement.Load(localFileName);
             }
             catch
             {
-                returnWithMessage("An error occured parsing the theme.xml file!");
+                ReturnWithMessage("An error occured parsing the theme.xml file! (Are you sure the theme you typed exists?)");
                 return;
             }
             if (lookForCCTheme)
@@ -356,7 +422,7 @@ namespace GATOOLS
                         Directory.CreateDirectory(localDir);
 
                         localFileName = $".\\{themeId}\\prop\\{propId}\\{stateId}";
-                        await downloadAsset(localFileName, uri, doDecryption, key);
+                        await DownloadAsset(localFileName, uri, doDecryption);
 
                         //Console.WriteLine($"Downloaded {stateId} for {propId}!");
                         log.Text = $"Downloaded state '{stateId}' for prop '{propId}'.";
@@ -372,7 +438,7 @@ namespace GATOOLS
 
                     localFileName = $".\\{themeId}\\prop\\{propId}";
 
-                    await downloadAsset(localFileName, uri, doDecryption, key);
+                    await DownloadAsset(localFileName, uri, doDecryption);
                     //Console.WriteLine($"Downloaded {propId}!");
                     log.Text = $"Downloaded prop '{propId}'.";
                 }
@@ -396,7 +462,7 @@ namespace GATOOLS
 
                 localFileName = $".\\{themeId}\\effect\\{effectId}";
 
-                await downloadAsset(localFileName, uri, doDecryption, key);
+                await DownloadAsset(localFileName, uri, doDecryption);
 
                 //Console.WriteLine($"Downloaded {effectId}!");
                 log.Text = $"Downloaded effect '{effectId}'.";
@@ -418,7 +484,7 @@ namespace GATOOLS
 
                 localFileName = $".\\{themeId}\\bg\\{bgThumb}";
 
-                await downloadAsset(localFileName, uri, false, null);
+                await DownloadAsset(localFileName, uri, false);
                 //Console.WriteLine($"Downloaded {bgThumb}!");
                 log.Text = $"Downloaded background thumbnail '{bgThumb}'.";
                 duration.Value++;
@@ -439,7 +505,7 @@ namespace GATOOLS
 
                 localFileName = $".\\{themeId}\\bg\\{bgId}";
 
-                await downloadAsset(localFileName, uri, doDecryption, key);
+                await DownloadAsset(localFileName, uri, doDecryption);
                 //Console.WriteLine($"Downloaded {bgId}!");
                 log.Text = $"Downloaded background '{bgId}'.";
                 duration.Value++;
@@ -461,7 +527,7 @@ namespace GATOOLS
 
                 localFileName = $".\\{themeId}\\sound\\{soundId}";
 
-                await downloadAsset(localFileName, uri, (doDecryption && soundId.Contains(".swf")), key);
+                await DownloadAsset(localFileName, uri, (doDecryption && soundId.Contains(".swf")));
                 //Console.WriteLine($"Downloaded {soundId}!");
                 log.Text = $"Downloaded sound '{soundId}'.";
                 foreach (var variant in variants)
@@ -472,7 +538,7 @@ namespace GATOOLS
                     localDir = $".\\{themeId}\\sound";
                     localFileName = $".\\{themeId}\\sound\\{soundId}";
 
-                    await downloadAsset(localFileName, uri, (doDecryption && soundId.Contains(".swf")), key);
+                    await DownloadAsset(localFileName, uri, (doDecryption && soundId.Contains(".swf")));
                     log.Text = $"Downloaded sound varriant '{soundId}'.";
                 }
                 duration.Value++;
@@ -503,7 +569,7 @@ namespace GATOOLS
 
                     localFileName = $".\\{themeId}\\char\\{charId}\\{actionId}";
 
-                    await downloadAsset(localFileName, uri, doDecryption, key);
+                    await DownloadAsset(localFileName, uri, doDecryption);
 
                     //Console.WriteLine($"Downloaded {actionId} for {charId}!");
                     log.Text = $"Downloaded action '{actionId}' for character '{charId}'.";
@@ -520,7 +586,7 @@ namespace GATOOLS
 
                     localFileName = $".\\{themeId}\\char\\{charId}\\{motionId}";
 
-                    await downloadAsset(localFileName, uri, doDecryption, key);
+                    await DownloadAsset(localFileName, uri, doDecryption);
 
                     //Console.WriteLine($"Downloaded {motionId} for {charId}!");
                     log.Text = $"Downloaded motion '{motionId}' for character '{charId}'.";
@@ -538,7 +604,7 @@ namespace GATOOLS
                     localFileName = $".\\{themeId}\\char\\{charId}\\head\\{facialId}";
                     //Console.WriteLine(localFileName);
 
-                    await downloadAsset(localFileName, uri, doDecryption, key);
+                    await DownloadAsset(localFileName, uri, doDecryption);
 
                     //Console.WriteLine($"Downloaded {facialId} for {charId}!");
                     log.Text = $"Downloaded facial animation '{facialId}' for character '{charId}'.";
@@ -562,7 +628,7 @@ namespace GATOOLS
                 localFileName = $".\\{themeId}\\widget\\{widgetThumb}";
                 //Console.WriteLine(localFileName);
 
-                await downloadAsset(localFileName, uri, false, key);
+                await DownloadAsset(localFileName, uri, false);
 
                 //Console.WriteLine($"Downloaded {facialId} for {charId}!");
                 log.Text = $"Downloaded widget thumbnail '{widgetThumb}'.";
@@ -585,8 +651,8 @@ namespace GATOOLS
                 localFileName = $".\\{themeId}\\flow\\";
                 //Console.WriteLine(localFileName);
 
-                await downloadAsset(localFileName+flowId, uri+flowId, doDecryption, key);
-                await downloadAsset(localFileName+flowThumb,uri+flowThumb, false, null);
+                await DownloadAsset(localFileName+flowId, uri+flowId, doDecryption);
+                await DownloadAsset(localFileName+flowThumb,uri+flowThumb, false);
 
 
                 //Console.WriteLine($"Downloaded {facialId} for {charId}!");
@@ -603,7 +669,7 @@ namespace GATOOLS
             {
                 await GoAnimateCCRip(ccThemeRefrence);
             }
-            returnWithMessage("The proceedure has completed.");
+            ReturnWithMessage("The proceedure has completed.");
         }
 
         public Form1()
@@ -614,12 +680,13 @@ namespace GATOOLS
         async private void button1_Click(object sender, EventArgs e)
         {
             button1.Enabled = false;
-            await startTask();
+            await StartProceedure();
         }
 
         private void encrypt_SelectedIndexChanged(object sender, EventArgs e)
         {
             var key = encrypt.SelectedItem;
+
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -670,6 +737,36 @@ namespace GATOOLS
         }
 
         private void label2_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void JPEXStoggle_CheckedChanged(object sender, EventArgs e)
+        {
+            if (JPEXStoggle.Checked)
+            {
+                MessageBox.Show("This feature is for developers only! I am NOT offering support for this feature, and I know it\'s incredibly slow. You additionally must have JPEXS installed for it to work.", "I\'m warning you!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                checkBox1.Checked = true;
+                checkBox1.Enabled = false;
+                encrypt.Text = "(auto)";
+                encrypt.Enabled = false;
+                reencrypt.Checked = false;
+                reencrypt.Enabled = false;
+                deleteAfter.Enabled = true;
+                hideCMD.Enabled = true;
+            }
+            else
+            {
+                checkBox1.Enabled = true;
+                encrypt.Enabled = true;
+                reencrypt.Enabled = true;
+                deleteAfter.Enabled = false;
+                hideCMD.Enabled = false;
+            }
+
+        }
+
+        private void hideCMD_CheckedChanged(object sender, EventArgs e)
         {
 
         }

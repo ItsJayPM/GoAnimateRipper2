@@ -46,12 +46,17 @@ namespace GATOOLS
             this.reencrypt = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.key2 = new System.Windows.Forms.ComboBox();
+            this.experimentalGroup = new System.Windows.Forms.GroupBox();
+            this.hideCMD = new System.Windows.Forms.CheckBox();
+            this.deleteAfter = new System.Windows.Forms.CheckBox();
+            this.JPEXStoggle = new System.Windows.Forms.CheckBox();
+            this.experimentalGroup.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(7, 158);
+            this.button1.Location = new System.Drawing.Point(7, 211);
             this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(773, 30);
@@ -72,7 +77,7 @@ namespace GATOOLS
             this.encrypt.Name = "encrypt";
             this.encrypt.Size = new System.Drawing.Size(309, 24);
             this.encrypt.TabIndex = 1;
-            this.encrypt.Text = "g0o1a2n3i4m5a6t7e";
+            this.encrypt.Text = "(auto)";
             this.encrypt.SelectedIndexChanged += new System.EventHandler(this.encrypt_SelectedIndexChanged);
             // 
             // label1
@@ -179,7 +184,7 @@ namespace GATOOLS
             // 
             this.log.AutoSize = true;
             this.log.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.log.Location = new System.Drawing.Point(4, 221);
+            this.log.Location = new System.Drawing.Point(4, 274);
             this.log.Name = "log";
             this.log.Size = new System.Drawing.Size(323, 16);
             this.log.TabIndex = 16;
@@ -189,7 +194,7 @@ namespace GATOOLS
             // 
             this.duration.BackColor = System.Drawing.SystemColors.Window;
             this.duration.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.duration.Location = new System.Drawing.Point(7, 195);
+            this.duration.Location = new System.Drawing.Point(7, 248);
             this.duration.Maximum = 0;
             this.duration.Name = "duration";
             this.duration.Size = new System.Drawing.Size(773, 23);
@@ -234,12 +239,67 @@ namespace GATOOLS
             this.key2.TabIndex = 19;
             this.key2.Text = "sorrypleasetryagainlater";
             // 
+            // experimentalGroup
+            // 
+            this.experimentalGroup.Controls.Add(this.hideCMD);
+            this.experimentalGroup.Controls.Add(this.deleteAfter);
+            this.experimentalGroup.Controls.Add(this.JPEXStoggle);
+            this.experimentalGroup.Location = new System.Drawing.Point(7, 156);
+            this.experimentalGroup.Name = "experimentalGroup";
+            this.experimentalGroup.Size = new System.Drawing.Size(773, 51);
+            this.experimentalGroup.TabIndex = 21;
+            this.experimentalGroup.TabStop = false;
+            this.experimentalGroup.Text = "JPEXS";
+            // 
+            // hideCMD
+            // 
+            this.hideCMD.AutoSize = true;
+            this.hideCMD.Checked = true;
+            this.hideCMD.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.hideCMD.Enabled = false;
+            this.hideCMD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.hideCMD.Location = new System.Drawing.Point(567, 22);
+            this.hideCMD.Margin = new System.Windows.Forms.Padding(4);
+            this.hideCMD.Name = "hideCMD";
+            this.hideCMD.Size = new System.Drawing.Size(194, 21);
+            this.hideCMD.TabIndex = 24;
+            this.hideCMD.Text = "Hide Command Prompt";
+            this.hideCMD.UseVisualStyleBackColor = true;
+            this.hideCMD.CheckedChanged += new System.EventHandler(this.hideCMD_CheckedChanged);
+            // 
+            // deleteAfter
+            // 
+            this.deleteAfter.AutoSize = true;
+            this.deleteAfter.Enabled = false;
+            this.deleteAfter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.deleteAfter.Location = new System.Drawing.Point(309, 22);
+            this.deleteAfter.Margin = new System.Windows.Forms.Padding(4);
+            this.deleteAfter.Name = "deleteAfter";
+            this.deleteAfter.Size = new System.Drawing.Size(232, 21);
+            this.deleteAfter.TabIndex = 23;
+            this.deleteAfter.Text = "Delete SWF after decompile";
+            this.deleteAfter.UseVisualStyleBackColor = true;
+            // 
+            // JPEXStoggle
+            // 
+            this.JPEXStoggle.AutoSize = true;
+            this.JPEXStoggle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.JPEXStoggle.Location = new System.Drawing.Point(7, 22);
+            this.JPEXStoggle.Margin = new System.Windows.Forms.Padding(4);
+            this.JPEXStoggle.Name = "JPEXStoggle";
+            this.JPEXStoggle.Size = new System.Drawing.Size(282, 21);
+            this.JPEXStoggle.TabIndex = 22;
+            this.JPEXStoggle.Text = "Attempt to decompile automatically";
+            this.JPEXStoggle.UseVisualStyleBackColor = true;
+            this.JPEXStoggle.CheckedChanged += new System.EventHandler(this.JPEXStoggle_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(788, 245);
+            this.ClientSize = new System.Drawing.Size(788, 295);
+            this.Controls.Add(this.experimentalGroup);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.key2);
             this.Controls.Add(this.reencrypt);
@@ -261,8 +321,10 @@ namespace GATOOLS
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "It\'sJay\'s GoAnimate Ripper II";
+            this.Text = "GoAnimate Ripper 2";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.experimentalGroup.ResumeLayout(false);
+            this.experimentalGroup.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -286,6 +348,10 @@ namespace GATOOLS
         private System.Windows.Forms.CheckBox reencrypt;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox key2;
+        private System.Windows.Forms.GroupBox experimentalGroup;
+        private System.Windows.Forms.CheckBox hideCMD;
+        private System.Windows.Forms.CheckBox deleteAfter;
+        private System.Windows.Forms.CheckBox JPEXStoggle;
     }
 }
 
