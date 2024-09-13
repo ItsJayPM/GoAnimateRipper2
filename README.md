@@ -1,4 +1,5 @@
-# GoAnimateRipper2
+![GoAnimate Ripper2](./assets/logo.png)
+#
 ### An enhanced .NET version of the tool that made programs such as GoAnimate Wrapper possible in the modern day.
 This tool rips assets for GoAnimate's "themes" and prepares them for immediate use in a server emulator program such as GoAnimate Wrapper, or any other similar services.
 ### Improvements compared to prior versions
