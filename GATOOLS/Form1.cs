@@ -1,16 +1,11 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Net.Http;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace GATOOLS
@@ -21,7 +16,6 @@ namespace GATOOLS
         byte[] key;
         bool doDecryption;
         HttpClient httpClient = new HttpClient();
-        int cycle = 0;
 
         public static byte[] Decrypt(byte[] pwd, byte[] data)
         {
@@ -61,11 +55,15 @@ namespace GATOOLS
         }
         public async Task DownloadAsset(string localFileName, string uriDownload, bool decrypt)
         {
-            if (JPEXStoggle.Checked && File.Exists(localFileName.Replace(".swf", ".fla")))
+            if (ffdecEnabled.Checked && File.Exists(localFileName.Replace(".swf", ".fla")) && !ripRedundant.Checked)
             {
-                Console.WriteLine(localFileName.Replace(".swf", ".fla"));
+                //Console.WriteLine(localFileName.Replace(".swf", ".fla"));
                 return;
             }
+            else if (!ffdecEnabled.Checked && File.Exists(localFileName) && !ripRedundant.Checked)
+            {
+                return;
+            }    
             using (var response = await httpClient.GetAsync(uriDownload))
             {
                 var data = await response.Content.ReadAsByteArrayAsync();
@@ -75,20 +73,20 @@ namespace GATOOLS
                     data = Decrypt(key, data);
                 }
 
-                if (reencrypt.Checked && decrypt)
+                if (reEncEnabled.Checked && decrypt)
                 {
-                    key = Encoding.ASCII.GetBytes($"{key2.Text}");
+                    key = Encoding.ASCII.GetBytes($"{reEncryptKey.Text}");
                     data = Decrypt(key, data);
                 }
 
                 File.WriteAllBytes(localFileName, data);
 
-                if (JPEXStoggle.Checked && decrypt)
+                if (ffdecEnabled.Checked && decrypt)
                 {
                     System.Diagnostics.Process process = new System.Diagnostics.Process();
                     var cmd = $"ffdec.bat -export fla \"{System.AppContext.BaseDirectory + localFileName.Substring(2, localFileName.LastIndexOf("\\") - 2)}\"  \"{System.AppContext.BaseDirectory + localFileName.Substring(2)}\"";
                     System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c " + cmd);
-                    if (hideCMD.Checked)startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                    if (hideCmd.Checked) startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
                     startInfo.WorkingDirectory = @"C:\Program Files (x86)\FFDec";
                     Console.WriteLine(startInfo.Arguments);
@@ -114,11 +112,11 @@ namespace GATOOLS
 
         public async Task StartProceedure()
         {
-            if (ThemeCheck.Checked)
+            if (themeCheck.Checked)
             {
                 await GoAnimateRip(false);
             }
-            else if (ThemeCCCheck.Checked)
+            else if (themeCCCheck.Checked)
             {
                 await GoAnimateRip(true);
             }
@@ -129,29 +127,33 @@ namespace GATOOLS
         }
         public void LockControl()
         {
-            button1.Enabled = false;
-            button1.Text = "Working...";
-            encrypt.Enabled = false;
-            reencrypt.Enabled = false;
-            key2.Enabled = false;
-            checkBox1.Enabled = false;
-            tid.Enabled = false;
-            dom.Enabled = false;
+            ripButton.Enabled = false;
+            ripButton.Text = "Working...";
+            encryptKey.Enabled = false;
+            reEncEnabled.Enabled = false;
+            reEncryptKey.Enabled = false;
+            decEnabled.Enabled = false;
+            themeId.Enabled = false;
+            ffdecEnabled.Enabled = false;
+            deleteAfter.Enabled = false;
+            hideCmd.Enabled = false;
+            ripRedundant.Enabled = false;
+            domain.Enabled = false;
         }
 
         //Lifted more or less from GoAnimate itself
         private bool IsFlashPrefix(byte[] data)
-		{
-			string prefix = System.Text.Encoding.UTF8.GetString(data).Substring(0,3);
-			return prefix == "CWS" || prefix == "FWS";
-		}
+        {
+            string prefix = System.Text.Encoding.UTF8.GetString(data).Substring(0, 3);
+            return prefix == "CWS" || prefix == "FWS";
+        }
 
 
         public void DetermineKey(byte[] data)
         {
             if (!IsFlashPrefix(data))
             {
-                foreach (string tkey in encrypt.Items)
+                foreach (string tkey in encryptKey.Items)
                 {
                     key = Encoding.ASCII.GetBytes(tkey);
                     if (IsFlashPrefix(Decrypt(key, data)))
@@ -165,29 +167,30 @@ namespace GATOOLS
         public void ReturnWithMessage(String mes)
         {
             log.Text = mes;
-            button1.Enabled = true;
-            button1.Text = "Start Ripping";
-            JPEXStoggle.Enabled = true;
-            deleteAfter.Enabled = JPEXStoggle.Checked;
-            hideCMD.Enabled = JPEXStoggle.Checked;
-            encrypt.Enabled = !JPEXStoggle.Checked;
-            reencrypt.Enabled = !JPEXStoggle.Checked && checkBox1.Checked;
-            key2.Enabled = !JPEXStoggle.Checked;
-            checkBox1.Enabled = !JPEXStoggle.Checked;
-            tid.Enabled = true;
-            dom.Enabled = true;
+            ripButton.Enabled = true;
+            ripButton.Text = "Start Ripping";
+            ffdecEnabled.Enabled = true;
+            deleteAfter.Enabled = ffdecEnabled.Checked;
+            hideCmd.Enabled = ffdecEnabled.Checked;
+            encryptKey.Enabled = !ffdecEnabled.Checked;
+            reEncEnabled.Enabled = !ffdecEnabled.Checked && decEnabled.Checked;
+            reEncryptKey.Enabled = !ffdecEnabled.Checked;
+            decEnabled.Enabled = !ffdecEnabled.Checked;
+            themeId.Enabled = true;
+            ripRedundant.Enabled = true;
+            domain.Enabled = true;
             return;
         }
         public async Task GoAnimateCCRip(String carryThemeId)
         {
             LockControl();
-            string serverAddress = dom.Text;
+            string serverAddress = domain.Text;
             if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
-            serverAddress = dom.Text + "cc_store/";
+            serverAddress = domain.Text + "cc_store/";
             HttpClient httpClient = new HttpClient();
-            string themeId = carryThemeId != null ? carryThemeId : tid.Text;
-            doDecryption = checkBox1.Checked;
-            if (encrypt.Text != "(auto)") key = Encoding.ASCII.GetBytes($"{encrypt.Text}");
+            string themeId = carryThemeId != null ? carryThemeId : this.themeId.Text;
+            doDecryption = decEnabled.Checked;
+            if (encryptKey.Text != "(auto)") key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
             string uri = $"{serverAddress}{themeId}/cc_theme.xml";
             string localFileName = $".\\cc_store\\{themeId}\\cc_theme.xml";
             string dir = $".\\cc_store\\{themeId}\\";
@@ -270,8 +273,8 @@ namespace GATOOLS
                 var bodyId = bodyshape.Attributes().Where(a => a.Name == "id").Single().Value;
 
 
-                    //Console.WriteLine("OK.");
-                    
+                //Console.WriteLine("OK.");
+
                 var actionpacks = bodyshape.Elements("actionpack");
                 var libraries = bodyshape.Elements("library");
                 duration.Maximum = libraries.Count();
@@ -333,9 +336,9 @@ namespace GATOOLS
                     var states = component.Elements("state");
                     var localDir = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}";
                     Directory.CreateDirectory(localDir);
-                        
+
                     //This is a small thing but it created a HUGE bug in one specific case lemme tell you
-                    if (componentType != "skeleton") 
+                    if (componentType != "skeleton")
                     {
                         uri = $"{serverAddress}{themeId}/{componentType}/{componentId}/{componentThumb}";
                         localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{componentThumb}";
@@ -372,11 +375,11 @@ namespace GATOOLS
         public async Task GoAnimateRip(bool lookForCCTheme)
         {
             //get user input
-            var serverAddress = dom.Text;
+            var serverAddress = domain.Text;
             if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
-            var themeId = tid.Text;
-            doDecryption = checkBox1.Checked;
-            if (encrypt.Text != "(auto)") key = Encoding.ASCII.GetBytes($"{encrypt.Text}");
+            var themeId = this.themeId.Text;
+            doDecryption = decEnabled.Checked;
+            if (encryptKey.Text != "(auto)") key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
             LockControl();
 
             //Download and load xml
@@ -439,13 +442,10 @@ namespace GATOOLS
                     localFileName = $".\\{themeId}\\prop\\{propId}";
 
                     await DownloadAsset(localFileName, uri, doDecryption);
-                    //Console.WriteLine($"Downloaded {propId}!");
                     log.Text = $"Downloaded prop '{propId}'.";
                 }
                 duration.Value++;
             }
-            //Console.WriteLine("Props: OK");
-
 
 
             var effects = xmlDoc.Descendants("effect");
@@ -463,12 +463,9 @@ namespace GATOOLS
                 localFileName = $".\\{themeId}\\effect\\{effectId}";
 
                 await DownloadAsset(localFileName, uri, doDecryption);
-
-                //Console.WriteLine($"Downloaded {effectId}!");
                 log.Text = $"Downloaded effect '{effectId}'.";
                 duration.Value++;
             }
-            //Console.WriteLine("Effects: OK");
 
             var backgroundsthumb = xmlDoc.Descendants("compositebg");
             duration.Maximum = backgroundsthumb.Count();
@@ -485,11 +482,9 @@ namespace GATOOLS
                 localFileName = $".\\{themeId}\\bg\\{bgThumb}";
 
                 await DownloadAsset(localFileName, uri, false);
-                //Console.WriteLine($"Downloaded {bgThumb}!");
                 log.Text = $"Downloaded background thumbnail '{bgThumb}'.";
                 duration.Value++;
             }
-            //Console.WriteLine("Background Thumbnails: OK");
 
             var backgrounds = xmlDoc.Descendants("background");
             duration.Maximum = backgrounds.Count();
@@ -506,11 +501,9 @@ namespace GATOOLS
                 localFileName = $".\\{themeId}\\bg\\{bgId}";
 
                 await DownloadAsset(localFileName, uri, doDecryption);
-                //Console.WriteLine($"Downloaded {bgId}!");
                 log.Text = $"Downloaded background '{bgId}'.";
                 duration.Value++;
             }
-            //Console.WriteLine("Backrounds: OK");
 
             var sounds = xmlDoc.Descendants("sound");
             duration.Maximum = sounds.Count();
@@ -528,7 +521,6 @@ namespace GATOOLS
                 localFileName = $".\\{themeId}\\sound\\{soundId}";
 
                 await DownloadAsset(localFileName, uri, (doDecryption && soundId.Contains(".swf")));
-                //Console.WriteLine($"Downloaded {soundId}!");
                 log.Text = $"Downloaded sound '{soundId}'.";
                 foreach (var variant in variants)
                 {
@@ -543,7 +535,6 @@ namespace GATOOLS
                 }
                 duration.Value++;
             }
-            //Console.WriteLine("Sounds: OK");
 
             var chars = xmlDoc.Descendants("char");
             duration.Maximum = chars.Count();
@@ -551,12 +542,10 @@ namespace GATOOLS
             foreach (var character in chars)
             {
                 var charId = character.Attributes().Where(a => a.Name == "id").Single().Value;
-                //get all files contained within a character
                 var actions = character.Descendants("action");
                 var motions = character.Descendants("motion");
                 var facials = character.Descendants("facial");
                 log.Text = $"Starting on new character ({charId}).";
-                //Console.WriteLine($"Starting on {charId}!");
 
                 foreach (var action in actions)
                 {
@@ -626,11 +615,8 @@ namespace GATOOLS
                 Directory.CreateDirectory(localDir);
 
                 localFileName = $".\\{themeId}\\widget\\{widgetThumb}";
-                //Console.WriteLine(localFileName);
 
                 await DownloadAsset(localFileName, uri, false);
-
-                //Console.WriteLine($"Downloaded {facialId} for {charId}!");
                 log.Text = $"Downloaded widget thumbnail '{widgetThumb}'.";
                 duration.Value++;
             }
@@ -649,22 +635,15 @@ namespace GATOOLS
                 Directory.CreateDirectory(localDir);
 
                 localFileName = $".\\{themeId}\\flow\\";
-                //Console.WriteLine(localFileName);
 
-                await DownloadAsset(localFileName+flowId, uri+flowId, doDecryption);
-                await DownloadAsset(localFileName+flowThumb,uri+flowThumb, false);
+                await DownloadAsset(localFileName + flowId, uri + flowId, doDecryption);
+                await DownloadAsset(localFileName + flowThumb, uri + flowThumb, false);
 
 
-                //Console.WriteLine($"Downloaded {facialId} for {charId}!");
                 log.Text = $"Downloaded downloaded flow frame '{flowId}'!";
                 duration.Value++;
 
             }
-            //Console.WriteLine("Characters: OK");
-            //Console.WriteLine("GoAnimateRipper");
-            //Console.WriteLine("Written by Poley Magik");
-            //Console.WriteLine("Thanks for using this tool");
-            //JUMP TO ME
             if (ccThemeRefrence != null)
             {
                 await GoAnimateCCRip(ccThemeRefrence);
@@ -679,13 +658,13 @@ namespace GATOOLS
 
         async private void button1_Click(object sender, EventArgs e)
         {
-            button1.Enabled = false;
+            ripButton.Enabled = false;
             await StartProceedure();
         }
 
         private void encrypt_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var key = encrypt.SelectedItem;
+            var key = encryptKey.SelectedItem;
 
         }
 
@@ -694,14 +673,9 @@ namespace GATOOLS
 
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            reencrypt.Enabled = checkBox1.Checked;
+            reEncEnabled.Enabled = decEnabled.Checked;
         }
 
         private void dom_TextChanged(object sender, EventArgs e)
@@ -710,16 +684,6 @@ namespace GATOOLS
         }
 
         private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
-        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
         {
 
         }
@@ -743,25 +707,26 @@ namespace GATOOLS
 
         private void JPEXStoggle_CheckedChanged(object sender, EventArgs e)
         {
-            if (JPEXStoggle.Checked)
+            if (ffdecEnabled.Checked)
             {
                 MessageBox.Show("This feature is for developers only! I am NOT offering support for this feature, and I know it\'s incredibly slow. You additionally must have JPEXS installed for it to work.", "I\'m warning you!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                checkBox1.Checked = true;
-                checkBox1.Enabled = false;
-                encrypt.Text = "(auto)";
-                encrypt.Enabled = false;
-                reencrypt.Checked = false;
-                reencrypt.Enabled = false;
+                decEnabled.Checked = true;
+                ripRedundant.Checked = false;
+                decEnabled.Enabled = false;
+                encryptKey.Text = "(auto)";
+                encryptKey.Enabled = false;
+                reEncEnabled.Checked = false;
+                reEncEnabled.Enabled = false;
                 deleteAfter.Enabled = true;
-                hideCMD.Enabled = true;
+                hideCmd.Enabled = true;
             }
             else
             {
-                checkBox1.Enabled = true;
-                encrypt.Enabled = true;
-                reencrypt.Enabled = true;
+                decEnabled.Enabled = true;
+                encryptKey.Enabled = true;
+                reEncEnabled.Enabled = true;
                 deleteAfter.Enabled = false;
-                hideCMD.Enabled = false;
+                hideCmd.Enabled = false;
             }
 
         }

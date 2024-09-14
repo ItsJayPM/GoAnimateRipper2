@@ -246,9 +246,6 @@
   <data name="checkBox2.TabIndex" type="System.Int32, mscorlib">
     <value>11</value>
   </data>
-  <data name="checkBox2.Text" xml:space="preserve">
-    <value>Check as Character Creator Theme?</value>
-  </data>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
     <value>8, 16</value>
   </data>
@@ -280,6 +277,9 @@
 </value>
   </data>
   <data name="$this.Text" xml:space="preserve">
-    <value>It'sJay's GoAnimate Ripper II</value>
+    <value>GoAnimate Ripper 2</value>
+  </data>
+  <data name="checkBox2.Text" xml:space="preserve">
+    <value>Check as Character Creator Theme?</value>
   </data>
 </root>
