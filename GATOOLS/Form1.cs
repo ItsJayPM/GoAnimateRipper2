@@ -54,6 +54,7 @@ namespace GATOOLS
             }
             return cipher;
         }
+
         public async Task DownloadAsset(string localFileName, string uriDownload, bool decrypt, bool isSwf)
         {
             if (ffdecEnabled.Checked && File.Exists(localFileName.Replace(".swf", ".fla")) && !ripRedundant.Checked)
@@ -68,7 +69,7 @@ namespace GATOOLS
             using (var response = await httpClient.GetAsync(uriDownload))
             {
                 var data = await response.Content.ReadAsByteArrayAsync();
-                bool succeeded = false;
+                bool succeeded = true;
                 if (decrypt && autoMode && isSwf)
                 {
                     succeeded = DetermineKey(data);
@@ -80,8 +81,7 @@ namespace GATOOLS
 
                 if (reEncEnabled.Checked && decrypt && succeeded && isSwf)
                 {
-                    key = Encoding.ASCII.GetBytes($"{reEncryptKey.Text}");
-                    data = Decrypt(key, data);
+                    data = Decrypt(Encoding.ASCII.GetBytes($"{reEncryptKey.Text}"), data);
                 }
 
                 File.WriteAllBytes(localFileName, data);
@@ -224,7 +224,7 @@ namespace GATOOLS
             //Reworked bar that actually isn't shite
             duration.Maximum = components.Count();
             duration.Value = 0;
-            /*foreach (var component in components)
+            foreach (var component in components)
             {
                 string componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
                 string componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
@@ -239,29 +239,29 @@ namespace GATOOLS
                 {
                     if (themeId == "family")
                     {
-                        await DownloadAsset(localFileName + "talk_sad_sync.swf", uri + "talk_sad_sync.swf", doDecryption);
+                        await DownloadAsset(localFileName + "talk_sad_sync.swf", uri + "talk_sad_sync.swf", doDecryption, true);
                         log.Text = $"Downloaded state 'talk_sad_sync.swf' for component '{componentId}' ({componentType}).";
-                        await DownloadAsset(localFileName + "talk_happy_sync.swf", uri + "talk_happy_sync.swf", doDecryption);
+                        await DownloadAsset(localFileName + "talk_happy_sync.swf", uri + "talk_happy_sync.swf", doDecryption, true);
                         log.Text = $"Downloaded state 'talk_happy_sync.swf' for component '{componentId}' ({componentType}).";
-                        await DownloadAsset(localFileName + "talk_angry_sync.swf", uri + "talk_angry_sync.swf", doDecryption);
+                        await DownloadAsset(localFileName + "talk_angry_sync.swf", uri + "talk_angry_sync.swf", doDecryption, true);
                         log.Text = $"Downloaded state 'talk_angry_sync.swf' for component '{componentId}' ({componentType}).";
 
                     }
                     if (themeId == "anime" || themeId == "ninjaanime" || themeId == "spacecitizen") //wack
                     {
-                        await DownloadAsset(localFileName + "side_talk_sync.swf", uri + "side_talk_sync.swf", doDecryption);
+                        await DownloadAsset(localFileName + "side_talk_sync.swf", uri + "side_talk_sync.swf", doDecryption, true);
                         log.Text = $"Downloaded state 'side_talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                     else
                     {
-                        await DownloadAsset(localFileName + "talk.swf", uri + "talk.swf", doDecryption);
+                        await DownloadAsset(localFileName + "talk.swf", uri + "talk.swf", doDecryption, true);
                         log.Text = $"Downloaded state 'talk.swf' for component '{componentId}' ({componentType}).";
-                        await DownloadAsset(localFileName + "talk_sync.swf", uri + "talk_sync.swf", doDecryption);
+                        await DownloadAsset(localFileName + "talk_sync.swf", uri + "talk_sync.swf", doDecryption, true);
                         log.Text = $"Downloaded state 'talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                 }
-                await DownloadAsset(localFileName + componentThumb, uri + componentThumb, doDecryption);
-                log.Text = $"Downloaded thumbnail for component '{componentId}' ({componentType})."
+                await DownloadAsset(localFileName + componentThumb, uri + componentThumb, doDecryption, true);
+                log.Text = $"Downloaded thumbnail for component '{componentId}' ({componentType}).";
 
                 foreach (var state in states)
                 {
@@ -274,12 +274,12 @@ namespace GATOOLS
                     Directory.CreateDirectory(localDir);
 
                     localFileName = $".\\cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateFilename}";
-                    await DownloadAsset(localFileName, uri, doDecryption);
+                    await DownloadAsset(localFileName, uri, doDecryption, true);
 
                     log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
                 }
                 duration.Value++;
-            }*/
+            }
             var bodyshapes = xmlDoc.Elements("bodyshape");
             foreach (var bodyshape in bodyshapes)
             {
