@@ -463,15 +463,18 @@ namespace GATOOLS
             foreach (var effect in effects)
             {
                 var effectId = effect.Attributes().Where(a => a.Name == "id").Single().Value;
-                uri = $"{serverAddress}{themeId}/effect/{effectId}";
+                if (effectId.Contains(".swf"))
+                {
+                    uri = $"{serverAddress}{themeId}/effect/{effectId}";
 
 
-                var localDir = $".\\{themeId}\\effect";
-                Directory.CreateDirectory(localDir);
+                    var localDir = $".\\{themeId}\\effect";
+                    Directory.CreateDirectory(localDir);
 
-                localFileName = $".\\{themeId}\\effect\\{effectId}";
+                    localFileName = $".\\{themeId}\\effect\\{effectId}";
 
-                await DownloadAsset(localFileName, uri, doDecryption, true);
+                    await DownloadAsset(localFileName, uri, doDecryption, true);
+                }
                 log.Text = $"Downloaded effect '{effectId}'.";
                 duration.Value++;
             }
