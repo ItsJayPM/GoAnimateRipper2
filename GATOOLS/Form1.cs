@@ -457,7 +457,7 @@ namespace GATOOLS
             }
 
 
-            var effects = xmlDoc.Descendants("effect");
+            var effects = xmlDoc.Elements("effect");
             duration.Maximum = effects.Count();
             duration.Value = 0;
             foreach (var effect in effects)
@@ -479,7 +479,7 @@ namespace GATOOLS
                 duration.Value++;
             }
 
-            var backgroundsthumb = xmlDoc.Descendants("compositebg");
+            var backgroundsthumb = xmlDoc.Elements("compositebg");
             duration.Maximum = backgroundsthumb.Count();
             duration.Value = 0;
             foreach (var compositebg in backgroundsthumb)
@@ -498,7 +498,7 @@ namespace GATOOLS
                 duration.Value++;
             }
 
-            var backgrounds = xmlDoc.Descendants("background");
+            var backgrounds = xmlDoc.Elements("background");
             duration.Maximum = backgrounds.Count();
             duration.Value = 0;
             foreach (var background in backgrounds)
@@ -517,7 +517,7 @@ namespace GATOOLS
                 duration.Value++;
             }
 
-            var sounds = xmlDoc.Descendants("sound");
+            var sounds = xmlDoc.Elements("sound");
             duration.Maximum = sounds.Count();
             duration.Value = 0;
             foreach (var sound in sounds)
@@ -548,7 +548,7 @@ namespace GATOOLS
                 duration.Value++;
             }
 
-            var chars = xmlDoc.Descendants("char");
+            var chars = xmlDoc.Elements("char");
             duration.Maximum = chars.Count();
             duration.Value = 0;
             foreach (var character in chars)
@@ -614,7 +614,7 @@ namespace GATOOLS
 
 
             }
-            var widgets = xmlDoc.Descendants("widget");
+            var widgets = xmlDoc.Elements("widget");
             duration.Maximum = widgets.Count();
             duration.Value = 0;
             foreach (var widget in widgets)
@@ -633,7 +633,7 @@ namespace GATOOLS
                 duration.Value++;
             }
 
-            var flows = xmlDoc.Descendants("flow");
+            var flows = xmlDoc.Elements("flow");
             duration.Maximum = flows.Count();
             duration.Value = 0;
             foreach (var flow in flows)
