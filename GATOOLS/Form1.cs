@@ -75,7 +75,6 @@ namespace GATOOLS
                 bool succeeded = true;
 
                 // If auto mode, try and figure out the key.
-                Console.WriteLine(decrypt.ToString() + autoMode + isSwf);
                 if (decrypt && autoMode && isSwf)
                 {
                     succeeded = DetermineKey(data);
@@ -401,7 +400,6 @@ namespace GATOOLS
             {
                 autoMode = true;
             }
-            if (encryptKey.Text != "(auto)") key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
             LockControl();
 
             //Download and load xml
