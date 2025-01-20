@@ -57,6 +57,8 @@ namespace GATOOLS
 
         public async Task DownloadAsset(string localFileName, string uriDownload, bool decrypt, bool isSwf)
         {
+            //If this file already is ripped and the rip redundant flag is off, exit this function
+
             if (ffdecEnabled.Checked && File.Exists(localFileName.Replace(".swf", ".fla")) && !ripRedundant.Checked)
             {
                 //Console.WriteLine(localFileName.Replace(".swf", ".fla"));
@@ -66,19 +68,24 @@ namespace GATOOLS
             {
                 return;
             }    
+
             using (var response = await httpClient.GetAsync(uriDownload))
             {
                 var data = await response.Content.ReadAsByteArrayAsync();
                 bool succeeded = true;
+
+                // If auto mode, try and figure out the key.
+                Console.WriteLine(decrypt.ToString() + autoMode + isSwf);
                 if (decrypt && autoMode && isSwf)
                 {
                     succeeded = DetermineKey(data);
                 }
+                // If the key was found, decrypt. If it isn't auto mode, it will always work.
                 if (decrypt && doDecryption && succeeded && isSwf)
                 {
                     data = Decrypt(key, data);
                 }
-
+                // If re-encrypt is checked and everything succeeded, do re-encryption.
                 if (reEncEnabled.Checked && decrypt && succeeded && isSwf)
                 {
                     data = Decrypt(Encoding.ASCII.GetBytes($"{reEncryptKey.Text}"), data);
@@ -285,9 +292,6 @@ namespace GATOOLS
             {
                 var bodyId = bodyshape.Attributes().Where(a => a.Name == "id").Single().Value;
 
-
-                //Console.WriteLine("OK.");
-
                 var actionpacks = bodyshape.Elements("actionpack");
                 var libraries = bodyshape.Elements("library");
                 duration.Maximum = libraries.Count();
@@ -338,7 +342,6 @@ namespace GATOOLS
                 duration.Value = 0;
                 foreach (var component in components)
                 {
-                    //APPARENTLY I need this dumb bullshit now even though my original code didn't.
                     var componentId = component.Attributes().Where(a => a.Name == "id").Single().Value;
                     var componentThumb = component.Attributes().Where(a => a.Name == "thumb").Single().Value;
                     var componentType = component.Attributes().Where(a => a.Name == "type").Single().Value;
@@ -389,6 +392,15 @@ namespace GATOOLS
             if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
             var themeId = this.themeId.Text;
             doDecryption = decEnabled.Checked;
+            if (encryptKey.Text != "(auto)")
+            {
+                autoMode = false;
+                key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
+            }
+            else
+            {
+                autoMode = true;
+            }
             if (encryptKey.Text != "(auto)") key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
             LockControl();
 
@@ -554,8 +566,7 @@ namespace GATOOLS
             foreach (var character in chars)
             {
                 var charId = character.Attributes().Where(a => a.Name == "id").Single().Value;
-                var actions = character.Descendants("action");
-                var motions = character.Descendants("motion");
+                var actions = character.Descendants("action").Concat(character.Descendants("motion"));
                 var facials = character.Descendants("facial");
                 log.Text = $"Starting on new character ({charId}).";
 
@@ -574,23 +585,6 @@ namespace GATOOLS
 
                     //Console.WriteLine($"Downloaded {actionId} for {charId}!");
                     log.Text = $"Downloaded action '{actionId}' for character '{charId}'.";
-                }
-
-                foreach (var motion in motions)
-                {
-                    var motionId = motion.Attributes().Where(a => a.Name == "id").Single().Value;
-                    uri = $"{serverAddress}{themeId}/char/{charId}/{motionId}";
-
-
-                    var localDir = $".\\{themeId}\\char\\{charId}";
-                    Directory.CreateDirectory(localDir);
-
-                    localFileName = $".\\{themeId}\\char\\{charId}\\{motionId}";
-
-                    await DownloadAsset(localFileName, uri, doDecryption, true);
-
-                    //Console.WriteLine($"Downloaded {motionId} for {charId}!");
-                    log.Text = $"Downloaded motion '{motionId}' for character '{charId}'.";
                 }
 
                 foreach (var facial in facials)
@@ -646,16 +640,29 @@ namespace GATOOLS
                 var localDir = $".\\{themeId}\\flow\\";
                 Directory.CreateDirectory(localDir);
 
-                localFileName = $".\\{themeId}\\flow\\";
-
-                await DownloadAsset(localFileName + flowId, uri + flowId, doDecryption, true);
-                await DownloadAsset(localFileName + flowThumb, uri + flowThumb, false, false);
+                await DownloadAsset(localDir + flowId, uri + flowId, doDecryption, true);
+                await DownloadAsset(localDir + flowThumb, uri + flowThumb, false, false);
 
 
                 log.Text = $"Downloaded downloaded flow frame '{flowId}'!";
                 duration.Value++;
 
             }
+
+            /*var starters = xmlDoc.Elements("starter");
+            duration.Maximum = starters.Count();
+            duration.Value = 0;
+            foreach (var starter in starters)
+            {
+                var starterThumb = starter.Attributes().Where(a => a.Name == "thumbnail").Single().Value;
+
+                var localDir = $".\\{themeId}\\META - Noncompliant\\Starter Thumbs";
+                Directory.CreateDirectory(localDir);
+
+                localFileName = $".\\{themeId}\\flow\\";
+
+            }*/
+
             if (ccThemeRefrence != null)
             {
                 await GoAnimateCCRip(ccThemeRefrence);
