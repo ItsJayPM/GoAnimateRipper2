@@ -566,6 +566,7 @@ namespace GATOOLS
                 var charId = character.Attributes().Where(a => a.Name == "id").Single().Value;
                 var actions = character.Descendants("action").Concat(character.Descendants("motion"));
                 var facials = character.Descendants("facial");
+                var libs = character.Descendants("library");
                 log.Text = $"Starting on new character ({charId}).";
 
                 foreach (var action in actions)
@@ -601,6 +602,47 @@ namespace GATOOLS
 
                     //Console.WriteLine($"Downloaded {facialId} for {charId}!");
                     log.Text = $"Downloaded facial animation '{facialId}' for character '{charId}'.";
+                }
+
+                foreach (var lib in libs)
+                {
+                    var libPath = lib.Attributes().Where(a => a.Name == "path").Single().Value;
+                    var libType = lib.Attributes().Where(a => a.Name == "type").Single().Value;
+                    if (libType == "hands")
+                    {
+                        uri = $"{serverAddress}{themeId}/charparts/{libType}/{libPath}.swf";
+                        var localDir = $".\\{themeId}\\charparts\\{libType}";
+                        Directory.CreateDirectory(localDir);
+
+                        localFileName = $".\\{themeId}\\charparts\\{libType}\\{libPath}.swf";
+
+                        await DownloadAsset(localFileName, uri, false, true);
+
+                        //Console.WriteLine($"Downloaded {actionId} for {charId}!");
+                        log.Text = $"Downloaded charpart '{libPath}.swf' (hands).";
+                    }
+                    else
+                    {
+
+                        uri = $"{serverAddress}{themeId}/charparts/{libType}/{libPath}/";
+                        var localDir = $".\\{themeId}\\charparts\\{libType}\\{libPath}\\";
+                        Directory.CreateDirectory(localDir);
+
+                        localFileName = $".\\{themeId}\\charparts\\{libType}\\{libPath}\\";
+
+                        //await DownloadAsset(localFileName, uri, false, true);
+
+                        //what in the chungus??? why so much hardcoding??
+                        await DownloadAsset(localFileName + "talk.swf", uri + "talk.swf", doDecryption, true);
+                        await DownloadAsset(localFileName + "talk_sync.swf", uri + "talk_sync.swf", doDecryption, true);
+                        await DownloadAsset(localFileName + "talk_happy.swf", uri + "talk_happy.swf", doDecryption, true);
+                        await DownloadAsset(localFileName + "talk_happy_sync.swf", uri + "talk_happy_sync.swf", doDecryption, true);
+                        await DownloadAsset(localFileName + "talk_sad.swf", uri + "talk_sad.swf", doDecryption, true);
+                        await DownloadAsset(localFileName + "talk_sad_sync.swf", uri + "talk_sad_sync.swf", doDecryption, true); 
+                        log.Text = $"Downloaded charpart '{libPath}' (all mouth states).";
+
+                    }
+
                 }
                 duration.Value++;
 

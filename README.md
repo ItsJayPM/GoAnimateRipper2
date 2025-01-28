@@ -14,8 +14,8 @@ This tool rips assets for GoAnimate's "themes" and prepares them for immediate u
 - Music Variations.
 - Vidget/Widget Thumbnails.
 - Flow Frames.
+- Charparts.
 ### Stuff to keep in mind
 - A good chunk of the themes are ***LARGE***. Only use this tool if you have the space for it.
-- `charparts` need to be ripped manually. As far as I know, they are partially hardcoded.
 ### Support
 Contact me on Discord if you need help using this program (my handle is izjay).
