@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -55,16 +56,40 @@ namespace GATOOLS
             return cipher;
         }
 
+        public async Task RunFFDec()
+        {
+                Directory.CreateDirectory($".\\ffdec_output");
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                String cmd = $"ffdec.bat -export fla \"{System.AppContext.BaseDirectory}ffdec_output\"  \"{System.AppContext.BaseDirectory}ffdec_working\"";
+                Console.WriteLine(cmd);
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c " + cmd);
+                if (hideCmd.Checked) startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = "cmd.exe";
+                startInfo.WorkingDirectory = @"C:\Program Files (x86)\FFDec";
+                Console.WriteLine(startInfo.Arguments);
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
+                if (deleteAfter.Checked)
+                {
+                    try
+                    {
+                        Directory.Delete($".\\ffdec_working", true);
+                    }
+                    catch
+                    {
+                        log.Text = "Dir in use; Skipping deletion...";
+                    }
+                }
+        }
         public async Task DownloadAsset(string localFileName, string uriDownload, bool decrypt, bool isSwf)
         {
             //If this file already is ripped and the rip redundant flag is off, exit this function
-
-            if (ffdecEnabled.Checked && File.Exists(localFileName.Replace(".swf", ".fla")) && !ripRedundant.Checked)
+            if (ffdecEnabled.Checked && !isSwf && doDecryption)
             {
-                //Console.WriteLine(localFileName.Replace(".swf", ".fla"));
                 return;
             }
-            else if (!ffdecEnabled.Checked && File.Exists(localFileName) && !ripRedundant.Checked)
+            if (!ffdecEnabled.Checked && File.Exists(localFileName) && !ripRedundant.Checked)
             {
                 return;
             }    
@@ -90,31 +115,18 @@ namespace GATOOLS
                     data = Decrypt(Encoding.ASCII.GetBytes($"{reEncryptKey.Text}"), data);
                 }
 
-                File.WriteAllBytes(localFileName, data);
-
-                if (ffdecEnabled.Checked && isSwf)
+                if (ffdecEnabled.Checked && doDecryption)
                 {
-                    System.Diagnostics.Process process = new System.Diagnostics.Process();
-                    String cmd = $"ffdec.bat -export fla \"{System.AppContext.BaseDirectory + localFileName.Substring(2, localFileName.LastIndexOf("\\") - 2)}\"  \"{System.AppContext.BaseDirectory + localFileName.Substring(2)}\"";
-                    System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c " + cmd);
-                    if (hideCmd.Checked) startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                    startInfo.FileName = "cmd.exe";
-                    startInfo.WorkingDirectory = @"C:\Program Files (x86)\FFDec";
-                    Console.WriteLine(startInfo.Arguments);
-                    process.StartInfo = startInfo;
-                    process.Start();
-                    process.WaitForExit();
-                    if (deleteAfter.Checked)
-                    {
-                        try
-                        {
-                            File.Delete(localFileName);
-                        }
-                        catch
-                        {
-                            log.Text = "File in use; Skipping deletion...";
-                        }
-                    }
+                    String[] b = localFileName.Split('\\');
+                    String dir = $".\\\\ffdec_working";
+                    Directory.CreateDirectory(dir);
+                    dir = $".\\\\ffdec_working\\" + b[b.Length - 3] +"_" + b[b.Length - 2] + "_" + b[b.Length - 1];
+
+                    File.WriteAllBytes(dir, data);
+                }
+                else
+                {
+                    File.WriteAllBytes(localFileName, data);
                 }
 
                 return;
@@ -123,6 +135,17 @@ namespace GATOOLS
 
         public async Task StartProceedure()
         {
+            if (ffdecEnabled.Checked)
+            {
+                try
+                {
+                    Directory.Delete($".\\ffdec_working", true);
+                }
+                catch
+                {
+                    
+                }
+            }
             if (themeCheck.Checked)
             {
                 await GoAnimateRip(false);
@@ -200,21 +223,12 @@ namespace GATOOLS
             serverAddress = domain.Text + "cc_store/";
             HttpClient httpClient = new HttpClient();
             string themeId = carryThemeId != null ? carryThemeId : this.themeId.Text;
-            doDecryption = decEnabled.Checked;
-            if (encryptKey.Text != "(auto)")
-            {
-                autoMode = false;
-                key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
-            }
-            else
-            {
-                autoMode = true;
-            }
             string uri = $"{serverAddress}{themeId}/cc_theme.xml";
             string localFileName = $".\\cc_store\\{themeId}\\cc_theme.xml";
             string dir = $".\\cc_store\\{themeId}\\";
             Directory.CreateDirectory(dir);
             XElement xmlDoc = null;
+            doDecryption = false;
 
             await DownloadAsset(localFileName, uri, false, false);
             try
@@ -225,6 +239,16 @@ namespace GATOOLS
             {
                 ReturnWithMessage("An error occured parsing the cc_theme.xml file! (Are you sure the theme you typed exists?)");
                 return;
+            }
+            doDecryption = decEnabled.Checked;
+            if (encryptKey.Text != "(auto)")
+            {
+                autoMode = false;
+                key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
+            }
+            else
+            {
+                autoMode = true;
             }
             var components = xmlDoc.Elements("component");
             //Reworked bar that actually isn't shite
@@ -377,6 +401,11 @@ namespace GATOOLS
                 }
 
             }
+            if (ffdecEnabled.Checked)
+            {
+                log.Text = "Passing results to FFDec...";
+                await RunFFDec();
+            }
             if (carryThemeId == null)
             {
                 ReturnWithMessage("The proceedure has completed.");
@@ -390,16 +419,6 @@ namespace GATOOLS
             var serverAddress = domain.Text;
             if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
             var themeId = this.themeId.Text;
-            doDecryption = decEnabled.Checked;
-            if (encryptKey.Text != "(auto)")
-            {
-                autoMode = false;
-                key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
-            }
-            else
-            {
-                autoMode = true;
-            }
             LockControl();
 
             //Download and load xml
@@ -409,6 +428,7 @@ namespace GATOOLS
             String ccThemeRefrence = null;
             Directory.CreateDirectory(dir);
             XElement xmlDoc = null;
+            doDecryption = false;
 
             await DownloadAsset(localFileName, uri, false, false);
             try
@@ -423,6 +443,16 @@ namespace GATOOLS
             if (lookForCCTheme)
             {
                 ccThemeRefrence = xmlDoc.Attributes().Where(a => a.Name == "cc_theme_id").Single().Value;
+            }
+            doDecryption = decEnabled.Checked;
+            if (encryptKey.Text != "(auto)")
+            {
+                autoMode = false;
+                key = Encoding.ASCII.GetBytes($"{encryptKey.Text}");
+            }
+            else
+            {
+                autoMode = true;
             }
             var props = xmlDoc.Elements("prop");
             //Reworked bar that actually isn't shite
@@ -702,7 +732,11 @@ namespace GATOOLS
                 localFileName = $".\\{themeId}\\flow\\";
 
             }*/
-
+            if (ffdecEnabled.Checked)
+            {
+                log.Text = "Passing results to FFDec...";
+                await RunFFDec();
+            }
             if (ccThemeRefrence != null)
             {
                 await GoAnimateCCRip(ccThemeRefrence);
@@ -768,7 +802,7 @@ namespace GATOOLS
         {
             if (ffdecEnabled.Checked)
             {
-                MessageBox.Show("This feature is for developers only! I am NOT offering support for this feature, and I know it\'s incredibly slow. You additionally must have JPEXS installed for it to work.", "I\'m warning you!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("I do not gurantee this feature will work for you, I wrote it so it would work on my computer but I don\'t know how well it\'ll work with yours. I think so long as you\'re on Windows and have JPEXS it should be fine but I\'m not really sure. Use at your own discretion, and just letting you know you probably shouldn\'t touch the JPEXS settings, they are for debugging and WILL make the process harder to follow or do tons of repeat work for no reason.", "I\'m warning you!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 decEnabled.Checked = true;
                 ripRedundant.Checked = false;
                 decEnabled.Enabled = false;

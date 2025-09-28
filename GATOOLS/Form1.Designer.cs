@@ -255,11 +255,9 @@ namespace GATOOLS
             // hideCmd
             // 
             this.hideCmd.AutoSize = true;
-            this.hideCmd.Checked = true;
-            this.hideCmd.CheckState = System.Windows.Forms.CheckState.Checked;
             this.hideCmd.Enabled = false;
             this.hideCmd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.hideCmd.Location = new System.Drawing.Point(567, 22);
+            this.hideCmd.Location = new System.Drawing.Point(556, 22);
             this.hideCmd.Margin = new System.Windows.Forms.Padding(4);
             this.hideCmd.Name = "hideCmd";
             this.hideCmd.Size = new System.Drawing.Size(194, 21);
@@ -271,14 +269,16 @@ namespace GATOOLS
             // deleteAfter
             // 
             this.deleteAfter.AutoSize = true;
+            this.deleteAfter.Checked = true;
+            this.deleteAfter.CheckState = System.Windows.Forms.CheckState.Checked;
             this.deleteAfter.Enabled = false;
             this.deleteAfter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.deleteAfter.Location = new System.Drawing.Point(309, 22);
+            this.deleteAfter.Location = new System.Drawing.Point(297, 22);
             this.deleteAfter.Margin = new System.Windows.Forms.Padding(4);
             this.deleteAfter.Name = "deleteAfter";
-            this.deleteAfter.Size = new System.Drawing.Size(232, 21);
+            this.deleteAfter.Size = new System.Drawing.Size(245, 21);
             this.deleteAfter.TabIndex = 23;
-            this.deleteAfter.Text = "Delete SWF after decompile";
+            this.deleteAfter.Text = "Delete working directory after";
             this.deleteAfter.UseVisualStyleBackColor = true;
             // 
             // ffdecEnabled
