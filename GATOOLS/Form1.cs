@@ -17,6 +17,8 @@ namespace GATOOLS
         byte[] key;
         bool doDecryption;
         bool autoMode;
+        List<string> pathes = new List<string>();
+
         HttpClient httpClient = new HttpClient();
 
         public static byte[] Decrypt(byte[] pwd, byte[] data)
@@ -56,6 +58,9 @@ namespace GATOOLS
             return cipher;
         }
 
+        /// <summary>
+        /// Task <c>RunFFDec</c> handles the batch decompilation of assets using JPEXS.
+        /// </summary>
         public async Task RunFFDec()
         {
                 Directory.CreateDirectory($".\\ffdec_output");
@@ -70,8 +75,7 @@ namespace GATOOLS
                 process.StartInfo = startInfo;
                 process.Start();
                 process.WaitForExit();
-                if (deleteAfter.Checked)
-                {
+
                     try
                     {
                         Directory.Delete($".\\ffdec_working", true);
@@ -80,15 +84,33 @@ namespace GATOOLS
                     {
                         log.Text = "Dir in use; Skipping deletion...";
                     }
+        }
+
+        public void ReorganizeAfterFFDec()
+        {
+            //Console.WriteLine(pathes.Count);
+            //Console.WriteLine("SUCCESS!");
+            for (int i = 0; i < pathes.Count; i++)
+            {
+                String projectedPath = $".\\ffdec_output\\{i}.swf";
+                String finalLocation = pathes[i].Substring(0, pathes[i].LastIndexOf("."));
+                String finalName = finalLocation.Substring(finalLocation.LastIndexOf("\\"));
+                if (Directory.Exists(projectedPath))
+                {
+                    //Console.WriteLine($"{i} is associated to {finalLocation}");
+                    Directory.Move(projectedPath, finalLocation);
+                    File.Move(finalLocation+$"\\{i}.fla", finalLocation+$"\\{finalName}.fla");
                 }
+            }
+            Directory.Delete($".\\ffdec_output", true);
         }
         public async Task DownloadAsset(string localFileName, string uriDownload, bool decrypt, bool isSwf)
         {
             //If this file already is ripped and the rip redundant flag is off, exit this function
-            if (ffdecEnabled.Checked && !isSwf && doDecryption)
+            /*if (ffdecEnabled.Checked && !isSwf && doDecryption)
             {
                 return;
-            }
+            }*/
             if (!ffdecEnabled.Checked && File.Exists(localFileName) && !ripRedundant.Checked)
             {
                 return;
@@ -115,12 +137,13 @@ namespace GATOOLS
                     data = Decrypt(Encoding.ASCII.GetBytes($"{reEncryptKey.Text}"), data);
                 }
 
-                if (ffdecEnabled.Checked && doDecryption)
+                if (ffdecEnabled.Checked && doDecryption && isSwf)
                 {
-                    String[] b = localFileName.Split('\\');
+                    if (pathes.Contains(localFileName)) return; //Dupes CANNOT exist. It's kindof a whatev thing normally but in this context we need to make sure.
                     String dir = $".\\\\ffdec_working";
                     Directory.CreateDirectory(dir);
-                    dir = $".\\\\ffdec_working\\" + b[b.Length - 3] +"_" + b[b.Length - 2] + "_" + b[b.Length - 1];
+                    pathes.Add(localFileName);
+                    dir = $".\\\\ffdec_working\\" + (pathes.Count - 1) + ".swf";
 
                     File.WriteAllBytes(dir, data);
                 }
@@ -133,6 +156,9 @@ namespace GATOOLS
             }
         }
 
+        /// <summary>
+        /// void <c>StartProceedure</c> initiates the correct ripping process based on the selected settings.
+        /// </summary>
         public async Task StartProceedure()
         {
             if (ffdecEnabled.Checked)
@@ -159,6 +185,10 @@ namespace GATOOLS
                 await GoAnimateCCRip(null);
             }
         }
+
+        /// <summary>
+        /// void <c>LockControl</c> locks the user interface.
+        /// </summary>
         public void LockControl()
         {
             ripButton.Enabled = false;
@@ -176,13 +206,18 @@ namespace GATOOLS
         }
 
         //Lifted more or less from GoAnimate itself
+        /// <summary>
+        /// bool <c>IsFlashPrefix</c> returns if byte[] <c>data</c> has a valid SWF header.
+        /// </summary>
         private bool IsFlashPrefix(byte[] data)
         {
             string prefix = System.Text.Encoding.UTF8.GetString(data).Substring(0, 3);
             return prefix == "CWS" || prefix == "FWS";
         }
 
-
+        /// <summary>
+        /// bool <c>DetermineKey</c> tries to determine the key. It returns true if it succeeds.
+        /// </summary>
         public bool DetermineKey(byte[] data)
         {
             if (!IsFlashPrefix(data))
@@ -198,6 +233,10 @@ namespace GATOOLS
             }
             return false;
         }
+
+        /// <summary>
+        /// void <c>ReturnWithMessage</c> returns user control and sends a message to the log.
+        /// </summary>
         public void ReturnWithMessage(String mes)
         {
             log.Text = mes;
@@ -217,6 +256,7 @@ namespace GATOOLS
         }
         public async Task GoAnimateCCRip(String carryThemeId)
         {
+            pathes = new List<string>();
             LockControl();
             string serverAddress = domain.Text;
             if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
@@ -226,6 +266,7 @@ namespace GATOOLS
             string uri = $"{serverAddress}{themeId}/cc_theme.xml";
             string localFileName = $".\\cc_store\\{themeId}\\cc_theme.xml";
             string dir = $".\\cc_store\\{themeId}\\";
+            if (Directory.Exists(dir) && ffdecEnabled.Checked) { Directory.Delete(dir, true); }
             Directory.CreateDirectory(dir);
             XElement xmlDoc = null;
             doDecryption = false;
@@ -238,6 +279,7 @@ namespace GATOOLS
             catch
             {
                 ReturnWithMessage("An error occured parsing the cc_theme.xml file! (Are you sure the theme you typed exists?)");
+                Directory.Delete(dir, true);
                 return;
             }
             doDecryption = decEnabled.Checked;
@@ -405,6 +447,7 @@ namespace GATOOLS
             {
                 log.Text = "Passing results to FFDec...";
                 await RunFFDec();
+                if (deleteAfter.Checked) ReorganizeAfterFFDec();
             }
             if (carryThemeId == null)
             {
@@ -415,6 +458,7 @@ namespace GATOOLS
 
         public async Task GoAnimateRip(bool lookForCCTheme)
         {
+            pathes = new List<string>();
             //get user input
             var serverAddress = domain.Text;
             if (serverAddress.Substring(serverAddress.Length - 1) != "/") serverAddress += "/";
@@ -426,6 +470,7 @@ namespace GATOOLS
             var localFileName = $".\\{themeId}\\theme.xml";
             var dir = $".\\{themeId}\\";
             String ccThemeRefrence = null;
+            if (Directory.Exists(dir) && ffdecEnabled.Checked) { Directory.Delete(dir, true); }
             Directory.CreateDirectory(dir);
             XElement xmlDoc = null;
             doDecryption = false;
@@ -438,6 +483,7 @@ namespace GATOOLS
             catch
             {
                 ReturnWithMessage("An error occured parsing the theme.xml file! (Are you sure the theme you typed exists?)");
+                Directory.Delete(dir, true);
                 return;
             }
             if (lookForCCTheme)
@@ -736,6 +782,7 @@ namespace GATOOLS
             {
                 log.Text = "Passing results to FFDec...";
                 await RunFFDec();
+                if (deleteAfter.Checked) ReorganizeAfterFFDec();
             }
             if (ccThemeRefrence != null)
             {

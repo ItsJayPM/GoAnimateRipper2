@@ -257,7 +257,7 @@ namespace GATOOLS
             this.hideCmd.AutoSize = true;
             this.hideCmd.Enabled = false;
             this.hideCmd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.hideCmd.Location = new System.Drawing.Point(556, 22);
+            this.hideCmd.Location = new System.Drawing.Point(562, 22);
             this.hideCmd.Margin = new System.Windows.Forms.Padding(4);
             this.hideCmd.Name = "hideCmd";
             this.hideCmd.Size = new System.Drawing.Size(194, 21);
@@ -276,9 +276,9 @@ namespace GATOOLS
             this.deleteAfter.Location = new System.Drawing.Point(297, 22);
             this.deleteAfter.Margin = new System.Windows.Forms.Padding(4);
             this.deleteAfter.Name = "deleteAfter";
-            this.deleteAfter.Size = new System.Drawing.Size(245, 21);
+            this.deleteAfter.Size = new System.Drawing.Size(257, 21);
             this.deleteAfter.TabIndex = 23;
-            this.deleteAfter.Text = "Delete working directory after";
+            this.deleteAfter.Text = "Reorganize after decompilation";
             this.deleteAfter.UseVisualStyleBackColor = true;
             // 
             // ffdecEnabled
