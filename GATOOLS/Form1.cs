@@ -86,16 +86,24 @@ namespace GATOOLS
                     }
         }
 
+        /// <summary>
+        /// void <c>GetPathAsUrl</c> returns path as full URL path.
+        /// </summary>
         public String GetPathAsUrl(string path)
         {
             return domain.Text + path.Replace("\\","/");
         }
-
+        /// <summary>
+        /// void <c>GetLocalPath</c> returns path as full directory path.
+        /// </summary>
         public String GetLocalPath(string path)
         {
             Directory.CreateDirectory(path.Substring(0, path.LastIndexOf("\\")));
             return ".\\" + path;
         }
+        /// <summary>
+        /// void <c>ReorganizeAfterFFDec</c> moves the JPEXS output back to their proper locations, then cleans vars.
+        /// </summary>
         public void ReorganizeAfterFFDec()
         {
             //Console.WriteLine(pathes.Count);
@@ -118,9 +126,8 @@ namespace GATOOLS
         /// <summary>
         /// Task <c>DownloadAsset</c> downloads the asset, and if applicable, decrypts, re-encrypts, and sets up for decompiling.
         /// </summary>
-        /// (<paramref name="localFileName"/>,<paramref name="uriDownload"/>,<paramref name="isSupposedToHaveEncryption"/>)
-        /// <param name="localFileName">The local download path.</param>
-        /// <param name="uriDownload">The url download link.</param>
+        /// (<paramref name="path"/>,<paramref name="isSupposedToHaveEncryption"/>)
+        /// <param name="path">The path fragment. The function handles the local and download with the fragment.</param>
         /// <param name="isSupposedToHaveEncryption">If the file is SUPPOSED to have encryption; Only applicable to SWFs.</param>
         public async Task DownloadAsset(string path,  bool isSupposedToHaveEncryption)
         {
@@ -287,16 +294,15 @@ namespace GATOOLS
             serverAddress = domain.Text + "cc_store/";
             HttpClient httpClient = new HttpClient();
             string themeId = carryThemeId != null ? carryThemeId : this.themeId.Text;
-            //string uri = $"{serverAddress}{themeId}/cc_theme.xml";
-            string localFileName = $"cc_store\\{themeId}\\cc_theme.xml";
+            string fileLocation = $"cc_store\\{themeId}\\cc_theme.xml";
             if (Directory.Exists($".\\cc_store\\{themeId}\\") && ffdecEnabled.Checked) { Directory.Delete($".\\cc_store\\{themeId}\\", true); }
             XElement xmlDoc = null;
             doDecryption = false;
 
-            await DownloadAsset(localFileName, false);
+            await DownloadAsset(fileLocation, false);
             try
             {
-                xmlDoc = XElement.Load(GetLocalPath(localFileName));
+                xmlDoc = XElement.Load(GetLocalPath(fileLocation));
             }
             catch
             {
@@ -325,33 +331,33 @@ namespace GATOOLS
                 string componentThumb = component.Attributes().Where(a => a.Name == "thumb").Single().Value;
                 var states = component.Elements("state");
 
-                localFileName = $"cc_store\\{themeId}\\{componentType}\\{componentId}";
+                fileLocation = $"cc_store\\{themeId}\\{componentType}\\{componentId}";
                 if (componentType == "mouth")
                 {
                     if (themeId == "family")
                     {
-                        await DownloadAsset($"{localFileName}\\talk_sad_sync.swf", doDecryption);
+                        await DownloadAsset($"{fileLocation}\\talk_sad_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk_sad_sync.swf' for component '{componentId}' ({componentType}).";
-                        await DownloadAsset($"{localFileName}\\talk_happy_sync.swf", doDecryption);
+                        await DownloadAsset($"{fileLocation}\\talk_happy_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk_happy_sync.swf' for component '{componentId}' ({componentType}).";
-                        await DownloadAsset($"{localFileName}\\talk_angry_sync.swf", doDecryption);
+                        await DownloadAsset($"{fileLocation}\\talk_angry_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk_angry_sync.swf' for component '{componentId}' ({componentType}).";
 
                     }
                     if (themeId == "anime" || themeId == "ninjaanime" || themeId == "spacecitizen") //wack
                     {
-                        await DownloadAsset($"{localFileName}\\side_talk_sync.swf", doDecryption);
+                        await DownloadAsset($"{fileLocation}\\side_talk_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'side_talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                     else
                     {
-                        await DownloadAsset($"{localFileName}\\talk.swf", doDecryption);
+                        await DownloadAsset($"{fileLocation}\\talk.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk.swf' for component '{componentId}' ({componentType}).";
-                        await DownloadAsset($"{localFileName}\\talk_sync.swf", doDecryption);
+                        await DownloadAsset($"{fileLocation}\\talk_sync.swf", doDecryption);
                         log.Text = $"Downloaded state 'talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                 }
-                await DownloadAsset(localFileName + "\\" + componentThumb, doDecryption);
+                await DownloadAsset(fileLocation + "\\" + componentThumb, doDecryption);
                 log.Text = $"Downloaded thumbnail for component '{componentId}' ({componentType}).";
 
                 foreach (var state in states)
@@ -360,8 +366,8 @@ namespace GATOOLS
                     var stateId = state.Attributes().Where(a => a.Name == "id").Single().Value;
                     var stateFilename = state.Attributes().Where(a => a.Name == "filename").Single().Value;
 
-                    localFileName = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateFilename}";
-                    await DownloadAsset(localFileName, doDecryption);
+                    fileLocation = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateFilename}";
+                    await DownloadAsset(fileLocation, doDecryption);
 
                     log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
                 }
@@ -382,13 +388,13 @@ namespace GATOOLS
                     var libraryId = library.Attributes().Where(a => a.Name == "path").Single().Value;
                     var libraryThumb = library.Attributes().Where(a => a.Name == "thumb").Single().Value;
 
-                    localFileName = $"cc_store\\{themeId}\\{libraryType}\\";
+                    fileLocation = $"cc_store\\{themeId}\\{libraryType}\\";
 
-                    await DownloadAsset(localFileName + libraryId + ".swf", false);
+                    await DownloadAsset(fileLocation + libraryId + ".swf", false);
                     log.Text = $"Downloaded library '{libraryId}.swf' ({libraryType}).";
                     if (libraryThumb != libraryId + ".swf")
                     {
-                        await DownloadAsset(localFileName + libraryThumb, doDecryption);
+                        await DownloadAsset(fileLocation + libraryThumb, doDecryption);
                         log.Text = $"Downloaded library thumb '{libraryThumb}' ({libraryType}).";
                     }
                     duration.Value++;
@@ -402,9 +408,9 @@ namespace GATOOLS
                     foreach (var action in actions)
                     {
                         var actionId = action.Attributes().Where(a => a.Name == "id").Single().Value;
-                        localFileName = $"cc_store\\{themeId}\\freeaction\\{bodyId}\\{actionId}.swf";
+                        fileLocation = $"cc_store\\{themeId}\\freeaction\\{bodyId}\\{actionId}.swf";
                         //Console.WriteLine(localDir + "," + localFileName);
-                        await DownloadAsset(localFileName, doDecryption);
+                        await DownloadAsset(fileLocation, doDecryption);
                         log.Text = $"Downloaded freeaction '{actionId}' for bodytype '{bodyId}' (actionpack {actionpackName}).";
                         duration.Value++;
                     }
@@ -426,8 +432,8 @@ namespace GATOOLS
                     //This is a small thing but it created a HUGE bug in one specific case lemme tell you
                     if (componentType != "skeleton")
                     {
-                        localFileName = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{componentThumb}";
-                        await DownloadAsset(localFileName, doDecryption);
+                        fileLocation = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{componentThumb}";
+                        await DownloadAsset(fileLocation, doDecryption);
                         log.Text = $"Downloaded state '{componentThumb}' for component '{componentId}' ({componentType}).";
                     }
 
@@ -436,8 +442,8 @@ namespace GATOOLS
 
                         var stateId = state.Attributes().Where(a => a.Name == "id").Single().Value;
 
-                        localFileName = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
-                        await DownloadAsset(localFileName, doDecryption);
+                        fileLocation = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
+                        await DownloadAsset(fileLocation, doDecryption);
 
                         log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
                     }
