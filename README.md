@@ -7,9 +7,9 @@ This tool rips assets for GoAnimate's "themes" and prepares them for immediate u
 - Simple yet effective interface.
 - More portable thanks to being compilable.
 - Decryption automated! No key knowleddge necessary.
-- Reencryption, for use in older builds (ie how it's used in FlashThemes).
+- Re-encryption, for use in older builds (ie how it's used in FlashThemes).
 - Character Creator support built in.
-- WIP! JPEXS auto decompilation support (slow).
+- (beta) JPEXS auto decompilation support!
 ### Now rips more stuff! (FlashThemes has made me realize my OG Ripper missed a good chunk of stuff...)
 - Music Variations.
 - Vidget/Widget Thumbnails.
