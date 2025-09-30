@@ -335,7 +335,7 @@ namespace GATOOLS
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "GoAnimate Ripper 2";
+            this.Text = "GoAnimateRipper2 v1.5.6";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.experimentalGroup.ResumeLayout(false);
             this.experimentalGroup.PerformLayout();
