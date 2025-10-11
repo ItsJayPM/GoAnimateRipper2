@@ -18,6 +18,7 @@ namespace GATOOLS
         bool doDecryption;
         bool autoMode;
         List<string> pathes = new List<string>();
+        bool downloadSuccess = true;
 
         HttpClient httpClient = new HttpClient();
 
@@ -129,10 +130,11 @@ namespace GATOOLS
         /// (<paramref name="path"/>,<paramref name="isSupposedToHaveEncryption"/>)
         /// <param name="path">The path fragment. The function handles the local and download with the fragment.</param>
         /// <param name="isSupposedToHaveEncryption">If the file is SUPPOSED to have encryption; Only applicable to SWFs.</param>
-        public async Task DownloadAsset(string path,  bool isSupposedToHaveEncryption)
+        public async Task DownloadAsset(string path, bool isSupposedToHaveEncryption)
         {
+            downloadSuccess = true;
             //Setup Phase.
-            
+
             bool isSwf = true;
             if (!path.ToLower().Contains(".swf"))
             {
@@ -141,12 +143,26 @@ namespace GATOOLS
 
             if (!ffdecEnabled.Checked && File.Exists(GetLocalPath(path)) && !ripRedundant.Checked)
             {
+                downloadSuccess = false;
+                return;
+            }
+
+            if (isSwf && skipFlash.Checked || !isSwf && skipNonFlash.Checked)
+            {
+                downloadSuccess = false;
                 return;
             }
 
             //Execution Phase.
             using (var response = await httpClient.GetAsync(GetPathAsUrl(path)))
             {
+                if (!(response.StatusCode == System.Net.HttpStatusCode.Found || response.StatusCode == System.Net.HttpStatusCode.OK))
+                {
+                    log.Text = $"[ERROR] Server returned {response.StatusCode} at {GetPathAsUrl(path)}...";
+                    //Hack to make sure it doesn't crash when requesting invalid xml urls.
+                    downloadSuccess = false;
+                    if (!path.ToLower().Contains(".xml")) return;
+                }
                 var data = await response.Content.ReadAsByteArrayAsync();
                 bool keySuccessfullyMatched = true;
                 bool isFileEncrypted = !IsFlashPrefix(data);
@@ -175,13 +191,14 @@ namespace GATOOLS
                 //If we're in FFDec mode, save the path for later, and place the file in the JPEXS target folder.
                 if (ffdecEnabled.Checked && isSwf)
                 {
+                    downloadSuccess = false;
                     if (pathes.Contains(GetLocalPath(path))) return; //Dupes CANNOT exist. It's kindof a whatev thing normally but in this context we need to make sure.
+                    downloadSuccess = true;
                     String dir = $".\\\\ffdec_working";
                     Directory.CreateDirectory(dir);
                     pathes.Add(GetLocalPath(path));
                     dir = $".\\\\ffdec_working\\" + (pathes.Count - 1) + ".swf";
 
-                    File.WriteAllBytes(dir, data);
                 }
                 else
                 {
@@ -197,11 +214,17 @@ namespace GATOOLS
         /// </summary>
         public async Task StartProceedure()
         {
+            logHistory.Text = "";
             if (ffdecEnabled.Checked)
             {
                 if (Directory.Exists($".\\ffdec_output")) Directory.Delete($".\\ffdec_output", true);
                 if (Directory.Exists($".\\ffdec_working")) Directory.Delete($".\\ffdec_working", true);
 
+            }
+            if (skipFlash.Checked && skipNonFlash.Checked || CCCheck.Checked && skipFlash.Checked)
+            {
+                ReturnWithMessage("What are you trying to do?");
+                return;
             }
             if (themeCheck.Checked)
             {
@@ -234,6 +257,9 @@ namespace GATOOLS
             hideCmd.Enabled = false;
             ripRedundant.Enabled = false;
             domain.Enabled = false;
+            skipNonFlash.Enabled = false;
+            skipFlash.Enabled = false;
+            logErrors.Enabled = false;
         }
 
         //Lifted more or less from GoAnimate itself
@@ -283,6 +309,9 @@ namespace GATOOLS
             themeId.Enabled = true;
             ripRedundant.Enabled = true;
             domain.Enabled = true;
+            skipNonFlash.Enabled = true;
+            skipFlash.Enabled = true;
+            logErrors.Enabled = true;
             return;
         }
         public async Task GoAnimateCCRip(String carryThemeId)
@@ -337,28 +366,28 @@ namespace GATOOLS
                     if (themeId == "family")
                     {
                         await DownloadAsset($"{fileLocation}\\talk_sad_sync.swf", doDecryption);
-                        log.Text = $"Downloaded state 'talk_sad_sync.swf' for component '{componentId}' ({componentType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded state 'talk_sad_sync.swf' for component '{componentId}' ({componentType}).";
                         await DownloadAsset($"{fileLocation}\\talk_happy_sync.swf", doDecryption);
-                        log.Text = $"Downloaded state 'talk_happy_sync.swf' for component '{componentId}' ({componentType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded state 'talk_happy_sync.swf' for component '{componentId}' ({componentType}).";
                         await DownloadAsset($"{fileLocation}\\talk_angry_sync.swf", doDecryption);
-                        log.Text = $"Downloaded state 'talk_angry_sync.swf' for component '{componentId}' ({componentType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded state 'talk_angry_sync.swf' for component '{componentId}' ({componentType}).";
 
                     }
                     if (themeId == "anime" || themeId == "ninjaanime" || themeId == "spacecitizen") //wack
                     {
                         await DownloadAsset($"{fileLocation}\\side_talk_sync.swf", doDecryption);
-                        log.Text = $"Downloaded state 'side_talk_sync.swf' for component '{componentId}' ({componentType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded state 'side_talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                     else
                     {
                         await DownloadAsset($"{fileLocation}\\talk.swf", doDecryption);
-                        log.Text = $"Downloaded state 'talk.swf' for component '{componentId}' ({componentType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded state 'talk.swf' for component '{componentId}' ({componentType}).";
                         await DownloadAsset($"{fileLocation}\\talk_sync.swf", doDecryption);
-                        log.Text = $"Downloaded state 'talk_sync.swf' for component '{componentId}' ({componentType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded state 'talk_sync.swf' for component '{componentId}' ({componentType}).";
                     }
                 }
                 await DownloadAsset(fileLocation + "\\" + componentThumb, doDecryption);
-                log.Text = $"Downloaded thumbnail for component '{componentId}' ({componentType}).";
+                if (downloadSuccess) log.Text = $"Downloaded thumbnail for component '{componentId}' ({componentType}).";
 
                 foreach (var state in states)
                 {
@@ -369,7 +398,7 @@ namespace GATOOLS
                     fileLocation = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateFilename}";
                     await DownloadAsset(fileLocation, doDecryption);
 
-                    log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
+                    if (downloadSuccess) log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
                 }
                 duration.Value++;
             }
@@ -391,11 +420,11 @@ namespace GATOOLS
                     fileLocation = $"cc_store\\{themeId}\\{libraryType}\\";
 
                     await DownloadAsset(fileLocation + libraryId + ".swf", false);
-                    log.Text = $"Downloaded library '{libraryId}.swf' ({libraryType}).";
+                    if (downloadSuccess) log.Text = $"Downloaded library '{libraryId}.swf' ({libraryType}).";
                     if (libraryThumb != libraryId + ".swf")
                     {
                         await DownloadAsset(fileLocation + libraryThumb, doDecryption);
-                        log.Text = $"Downloaded library thumb '{libraryThumb}' ({libraryType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded library thumb '{libraryThumb}' ({libraryType}).";
                     }
                     duration.Value++;
                 }
@@ -411,7 +440,7 @@ namespace GATOOLS
                         fileLocation = $"cc_store\\{themeId}\\freeaction\\{bodyId}\\{actionId}.swf";
                         //Console.WriteLine(localDir + "," + localFileName);
                         await DownloadAsset(fileLocation, doDecryption);
-                        log.Text = $"Downloaded freeaction '{actionId}' for bodytype '{bodyId}' (actionpack {actionpackName}).";
+                        if (downloadSuccess) log.Text = $"Downloaded freeaction '{actionId}' for bodytype '{bodyId}' (actionpack {actionpackName}).";
                         duration.Value++;
                     }
                 }
@@ -434,7 +463,7 @@ namespace GATOOLS
                     {
                         fileLocation = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{componentThumb}";
                         await DownloadAsset(fileLocation, doDecryption);
-                        log.Text = $"Downloaded state '{componentThumb}' for component '{componentId}' ({componentType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded state '{componentThumb}' for component '{componentId}' ({componentType}).";
                     }
 
                     foreach (var state in states)
@@ -445,7 +474,7 @@ namespace GATOOLS
                         fileLocation = $"cc_store\\{themeId}\\{componentType}\\{componentId}\\{stateId}.swf";
                         await DownloadAsset(fileLocation, doDecryption);
 
-                        log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
+                        if (downloadSuccess) log.Text = $"Downloaded state '{stateId}' for component '{componentId}' ({componentType}).";
                     }
                     duration.Value++;
                 }
@@ -508,72 +537,129 @@ namespace GATOOLS
             //Reworked bar that actually isn't shite
             duration.Maximum = props.Count();
             duration.Value = 0;
-            foreach (var prop in props)
+            if (!skipFlash.Checked)
             {
-
-                var propId = prop.Attributes().Where(a => a.Name == "id").Single().Value;
-                var states = prop.Elements("state");
-                if (states.Count() > 0)
+                foreach (var prop in props)
                 {
-                    foreach (var state in states)
+
+                    var propId = prop.Attributes().Where(a => a.Name == "id").Single().Value;
+                    var states = prop.Elements("state");
+                    if (states.Count() > 0)
                     {
-                        var stateId = state.Attributes().Where(a => a.Name == "id").Single().Value;
+                        foreach (var state in states)
+                        {
+                            var stateId = state.Attributes().Where(a => a.Name == "id").Single().Value;
 
-                        fileLocation = $"{themeId}\\prop\\{propId}\\{stateId}";
-                        await DownloadAsset(fileLocation, doDecryption);
-                        log.Text = $"Downloaded state '{stateId}' for prop '{propId}'.";
+                            fileLocation = $"{themeId}\\prop\\{propId}\\{stateId}";
+                            await DownloadAsset(fileLocation, doDecryption);
+                            if (downloadSuccess) log.Text = $"Downloaded state '{stateId}' for prop '{propId}'.";
+                        }
                     }
+                    else
+                    {
+                        fileLocation = $"{themeId}\\prop\\{propId}";
+
+                        await DownloadAsset(fileLocation, doDecryption);
+                        if (downloadSuccess) log.Text = $"Downloaded prop '{propId}'.";
+                    }
+                    duration.Value++;
                 }
-                else
+
+
+                var effects = xmlDoc.Elements("effect");
+                duration.Maximum = effects.Count();
+                duration.Value = 0;
+                foreach (var effect in effects)
                 {
-                    fileLocation = $"{themeId}\\prop\\{propId}";
+                    var effectId = effect.Attributes().Where(a => a.Name == "id").Single().Value;
+                    if (effectId.Contains(".swf"))
+                    {
+                        fileLocation = $"{themeId}\\effect\\{effectId}";
+                        await DownloadAsset(fileLocation, doDecryption);
+                    }
+                    if (downloadSuccess) log.Text = $"Downloaded effect '{effectId}'.";
+                    duration.Value++;
+                }
+
+                var backgrounds = xmlDoc.Elements("background");
+                duration.Maximum = backgrounds.Count();
+                duration.Value = 0;
+                foreach (var background in backgrounds)
+                {
+                    var bgId = background.Attributes().Where(a => a.Name == "id").Single().Value;
+                    fileLocation = $"{themeId}\\bg\\{bgId}";
 
                     await DownloadAsset(fileLocation, doDecryption);
-                    log.Text = $"Downloaded prop '{propId}'.";
+                    if (downloadSuccess) log.Text = $"Downloaded background '{bgId}'.";
+                    duration.Value++;
                 }
-                duration.Value++;
-            }
 
-
-            var effects = xmlDoc.Elements("effect");
-            duration.Maximum = effects.Count();
-            duration.Value = 0;
-            foreach (var effect in effects)
-            {
-                var effectId = effect.Attributes().Where(a => a.Name == "id").Single().Value;
-                if (effectId.Contains(".swf"))
+                var chars = xmlDoc.Elements("char");
+                duration.Maximum = chars.Count();
+                duration.Value = 0;
+                foreach (var character in chars)
                 {
-                    fileLocation = $"{themeId}\\effect\\{effectId}";
-                    await DownloadAsset(fileLocation, doDecryption);
+                    var charId = character.Attributes().Where(a => a.Name == "id").Single().Value;
+                    var actions = character.Descendants("action").Concat(character.Descendants("motion"));
+                    var facials = character.Descendants("facial");
+                    var libs = character.Descendants("library");
+                    if (downloadSuccess) log.Text = $"Starting on new character ({charId}).";
+
+                    foreach (var action in actions)
+                    {
+                        var actionId = action.Attributes().Where(a => a.Name == "id").Single().Value;
+                        fileLocation = $"{themeId}\\char\\{charId}\\{actionId}";
+
+                        await DownloadAsset(fileLocation, doDecryption);
+                        if (downloadSuccess) log.Text = $"Downloaded action '{actionId}' for character '{charId}'.";
+                    }
+
+                    foreach (var facial in facials)
+                    {
+                        var facialId = facial.Attributes().Where(a => a.Name == "id").Single().Value;
+                        fileLocation = $"{themeId}\\char\\{charId}\\head\\{facialId}";
+
+                        await DownloadAsset(fileLocation, doDecryption);
+
+                        if (downloadSuccess) log.Text = $"Downloaded facial animation '{facialId}' for character '{charId}'.";
+                    }
+
+                    foreach (var lib in libs)
+                    {
+                        var libPath = lib.Attributes().Where(a => a.Name == "path").Single().Value;
+                        var libType = lib.Attributes().Where(a => a.Name == "type").Single().Value;
+                        if (libType == "hands")
+                        {
+                            fileLocation = $"{themeId}\\charparts\\{libType}\\{libPath}.swf";
+
+                            await DownloadAsset(fileLocation, false);
+
+                            //Console.WriteLine($"Downloaded {actionId} for {charId}!");
+                            if (downloadSuccess) log.Text = $"Downloaded charpart '{libPath}.swf' (hands).";
+                        }
+                        else
+                        {
+                            fileLocation = $"{themeId}\\charparts\\{libType}\\{libPath}\\";
+
+                            //await DownloadAsset(localFileName, uri, false, true);
+
+                            //what in the chungus??? why so much hardcoding??
+                            await DownloadAsset(fileLocation + "talk.swf", doDecryption);
+                            await DownloadAsset(fileLocation + "talk_sync.swf", doDecryption);
+                            await DownloadAsset(fileLocation + "talk_happy.swf", doDecryption);
+                            await DownloadAsset(fileLocation + "talk_happy_sync.swf", doDecryption);
+                            await DownloadAsset(fileLocation + "talk_sad.swf", doDecryption);
+                            await DownloadAsset(fileLocation + "talk_sad_sync.swf", doDecryption);
+                            if (downloadSuccess) log.Text = $"Downloaded charpart '{libPath}' (all mouth states).";
+
+                        }
+
+                    }
+                    duration.Value++;
+
+
+
                 }
-                log.Text = $"Downloaded effect '{effectId}'.";
-                duration.Value++;
-            }
-
-            var backgroundsthumb = xmlDoc.Elements("compositebg");
-            duration.Maximum = backgroundsthumb.Count();
-            duration.Value = 0;
-            foreach (var compositebg in backgroundsthumb)
-            {
-                var bgThumb = compositebg.Attributes().Where(a => a.Name == "thumb").Single().Value;
-                fileLocation = $"{themeId}\\bg\\{bgThumb}";
-
-                await DownloadAsset(fileLocation, false);
-                log.Text = $"Downloaded background thumbnail '{bgThumb}'.";
-                duration.Value++;
-            }
-
-            var backgrounds = xmlDoc.Elements("background");
-            duration.Maximum = backgrounds.Count();
-            duration.Value = 0;
-            foreach (var background in backgrounds)
-            {
-                var bgId = background.Attributes().Where(a => a.Name == "id").Single().Value;
-                fileLocation = $"{themeId}\\bg\\{bgId}";
-
-                await DownloadAsset(fileLocation, doDecryption);
-                log.Text = $"Downloaded background '{bgId}'.";
-                duration.Value++;
             }
 
             var sounds = xmlDoc.Elements("sound");
@@ -587,84 +673,19 @@ namespace GATOOLS
                 fileLocation = $"{themeId}\\sound\\{soundId}";
 
                 await DownloadAsset(fileLocation, (doDecryption && soundId.Contains(".swf")));
-                log.Text = $"Downloaded sound '{soundId}'.";
+                if (downloadSuccess) log.Text = $"Downloaded sound '{soundId}'.";
                 foreach (var variant in variants)
                 {
                     soundId = variant.Attributes().Where(a => a.Name == "id").Single().Value;
                     fileLocation = $"{themeId}\\sound\\{soundId}";
 
                     await DownloadAsset(fileLocation, (doDecryption && soundId.Contains(".swf")));
-                    log.Text = $"Downloaded sound varriant '{soundId}'.";
+                    if (downloadSuccess) log.Text = $"Downloaded sound varriant '{soundId}'.";
                 }
                 duration.Value++;
             }
 
-            var chars = xmlDoc.Elements("char");
-            duration.Maximum = chars.Count();
-            duration.Value = 0;
-            foreach (var character in chars)
-            {
-                var charId = character.Attributes().Where(a => a.Name == "id").Single().Value;
-                var actions = character.Descendants("action").Concat(character.Descendants("motion"));
-                var facials = character.Descendants("facial");
-                var libs = character.Descendants("library");
-                log.Text = $"Starting on new character ({charId}).";
 
-                foreach (var action in actions)
-                {
-                    var actionId = action.Attributes().Where(a => a.Name == "id").Single().Value;
-                    fileLocation = $"{themeId}\\char\\{charId}\\{actionId}";
-
-                    await DownloadAsset(fileLocation, doDecryption);
-                    log.Text = $"Downloaded action '{actionId}' for character '{charId}'.";
-                }
-
-                foreach (var facial in facials)
-                {
-                    var facialId = facial.Attributes().Where(a => a.Name == "id").Single().Value;
-                    fileLocation = $"{themeId}\\char\\{charId}\\head\\{facialId}";
-
-                    await DownloadAsset(fileLocation, doDecryption);
-
-                    log.Text = $"Downloaded facial animation '{facialId}' for character '{charId}'.";
-                }
-
-                foreach (var lib in libs)
-                {
-                    var libPath = lib.Attributes().Where(a => a.Name == "path").Single().Value;
-                    var libType = lib.Attributes().Where(a => a.Name == "type").Single().Value;
-                    if (libType == "hands")
-                    {
-                        fileLocation = $"{themeId}\\charparts\\{libType}\\{libPath}.swf";
-
-                        await DownloadAsset(fileLocation, false);
-
-                        //Console.WriteLine($"Downloaded {actionId} for {charId}!");
-                        log.Text = $"Downloaded charpart '{libPath}.swf' (hands).";
-                    }
-                    else
-                    {
-                        fileLocation = $"{themeId}\\charparts\\{libType}\\{libPath}\\";
-
-                        //await DownloadAsset(localFileName, uri, false, true);
-
-                        //what in the chungus??? why so much hardcoding??
-                        await DownloadAsset(fileLocation + "talk.swf", doDecryption);
-                        await DownloadAsset(fileLocation + "talk_sync.swf", doDecryption);
-                        await DownloadAsset(fileLocation + "talk_happy.swf", doDecryption);
-                        await DownloadAsset(fileLocation + "talk_happy_sync.swf", doDecryption);
-                        await DownloadAsset(fileLocation + "talk_sad.swf", doDecryption);
-                        await DownloadAsset(fileLocation + "talk_sad_sync.swf", doDecryption); 
-                        log.Text = $"Downloaded charpart '{libPath}' (all mouth states).";
-
-                    }
-
-                }
-                duration.Value++;
-
-
-
-            }
             var widgets = xmlDoc.Elements("widget");
             duration.Maximum = widgets.Count();
             duration.Value = 0;
@@ -674,7 +695,7 @@ namespace GATOOLS
                 fileLocation = $"{themeId}\\widget\\{widgetThumb}";
 
                 await DownloadAsset(fileLocation, false);
-                log.Text = $"Downloaded widget thumbnail '{widgetThumb}'.";
+                if (downloadSuccess) log.Text = $"Downloaded widget thumbnail '{widgetThumb}'.";
                 duration.Value++;
             }
 
@@ -691,24 +712,82 @@ namespace GATOOLS
                 await DownloadAsset(fileLocation + flowThumb, false);
 
 
-                log.Text = $"Downloaded downloaded flow frame '{flowId}'!";
+                if (downloadSuccess) log.Text = $"Downloaded flow frame '{flowId}'.";
                 duration.Value++;
 
             }
 
-            /*var starters = xmlDoc.Elements("starter");
-            duration.Maximum = starters.Count();
-            duration.Value = 0;
-            foreach (var starter in starters)
+            if (skipNonFlash.Checked)
             {
-                var starterThumb = starter.Attributes().Where(a => a.Name == "thumbnail").Single().Value;
+                var backgroundsthumb = xmlDoc.Elements("compositebg");
+                duration.Maximum = backgroundsthumb.Count();
+                duration.Value = 0;
+                foreach (var compositebg in backgroundsthumb)
+                {
+                    var bgThumb = compositebg.Attributes().Where(a => a.Name == "thumb").Single().Value;
+                    fileLocation = $"{themeId}\\bg\\{bgThumb}";
 
-                var localDir = $".\\{themeId}\\META - Noncompliant\\Starter Thumbs";
-                Directory.CreateDirectory(localDir);
+                    await DownloadAsset(fileLocation, false);
+                    if (downloadSuccess) log.Text = $"Downloaded background thumbnail '{bgThumb}'.";
+                    duration.Value++;
+                }
 
-                localFileName = $".\\{themeId}\\flow\\";
+                var starters = xmlDoc.Elements("starter");
+                duration.Maximum = starters.Count();
+                duration.Value = 0;
+                foreach (var starter in starters)
+                {
+                    var starterThumb = starter.Attributes().Where(a => a.Name == "thumbnail").Single().Value;
+                    var starterTitle = starter.Attributes().Where(a => a.Name == "title").Single().Value;
 
-            }*/
+                    var dir = $".\\{themeId}\\META - Noncompliant\\Starter Thumbs";
+                    Directory.CreateDirectory(dir);
+
+                    using (var response = await httpClient.GetAsync(starterThumb))
+                    {
+                        downloadSuccess = true;
+                        if (!(response.StatusCode == System.Net.HttpStatusCode.Found || response.StatusCode == System.Net.HttpStatusCode.OK))
+                        {
+                            log.Text = $"[ERROR] Server returned {response.StatusCode} at {starterThumb}...";
+                            downloadSuccess = true;
+                        }
+                        if (downloadSuccess)
+                        {
+                            var data = await response.Content.ReadAsByteArrayAsync();
+                            File.WriteAllBytes($"{dir}\\{starterThumb.Substring(starterThumb.LastIndexOf("/") + 1)}", data);
+                            log.Text = $"Downloaded starter img '{starterThumb.Substring(starterThumb.LastIndexOf("/") + 1)}'.";
+                        }
+                    }
+                }
+
+                var categories = xmlDoc.Elements("category");
+                duration.Maximum = starters.Count();
+                duration.Value = 0;
+                foreach (var category in categories)
+                {
+                    var categoryThumb = category.Attributes().Where(a => a.Name == "thumbnail").Single().Value;
+
+                    var dir = $".\\{themeId}\\META - Noncompliant\\Category Thumbs";
+                    Directory.CreateDirectory(dir);
+
+                    using (var response = await httpClient.GetAsync(categoryThumb))
+                    {
+                        downloadSuccess = true;
+                        if (!(response.StatusCode == System.Net.HttpStatusCode.Found || response.StatusCode == System.Net.HttpStatusCode.OK))
+                        {
+                            log.Text = $"[ERROR] Server returned {response.StatusCode} at {categoryThumb}...";
+                            downloadSuccess = false;
+                        }
+                        if (downloadSuccess)
+                        {
+                            var data = await response.Content.ReadAsByteArrayAsync();
+                            File.WriteAllBytes($"{dir}\\{categoryThumb.Substring(categoryThumb.LastIndexOf("/") + 1)}", data);
+                            log.Text = $"Downloaded category img '{categoryThumb.Substring(categoryThumb.LastIndexOf("/") + 1)}'.";
+                        }
+                    }
+                }
+            }
+
             if (ffdecEnabled.Checked)
             {
                 log.Text = "Passing results to FFDec...";
@@ -809,6 +888,39 @@ namespace GATOOLS
         }
 
         private void hideCMD_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void log_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        //Quick way to bodge in the log actually being useful.
+        private void log_TextChanged(object sender, EventArgs e)
+        {
+            if (!logErrors.Checked || log.Text.Contains("[ERROR]"))
+            {
+                if (logHistory.Text.Length > 0)
+                {
+                    logHistory.Text += "\n" + log.Text;
+                }
+                else
+                {
+                    logHistory.Text = log.Text;
+                }
+                logHistory.SelectionStart = logHistory.Text.Length;
+                logHistory.ScrollToCaret();
+            }
+        }
+
+        private void skipNonFlash_CheckedChanged(object sender, EventArgs e)
         {
 
         }

@@ -46,18 +46,26 @@ namespace GATOOLS
             this.reEncEnabled = new System.Windows.Forms.CheckBox();
             this.reEncLabel = new System.Windows.Forms.Label();
             this.reEncryptKey = new System.Windows.Forms.ComboBox();
-            this.experimentalGroup = new System.Windows.Forms.GroupBox();
+            this.jpexsGroup = new System.Windows.Forms.GroupBox();
             this.hideCmd = new System.Windows.Forms.CheckBox();
             this.deleteAfter = new System.Windows.Forms.CheckBox();
             this.ffdecEnabled = new System.Windows.Forms.CheckBox();
             this.ripRedundant = new System.Windows.Forms.CheckBox();
-            this.experimentalGroup.SuspendLayout();
+            this.skipNonFlash = new System.Windows.Forms.CheckBox();
+            this.miscGroup = new System.Windows.Forms.GroupBox();
+            this.encryptionGroup = new System.Windows.Forms.GroupBox();
+            this.logHistory = new System.Windows.Forms.RichTextBox();
+            this.skipFlash = new System.Windows.Forms.CheckBox();
+            this.logErrors = new System.Windows.Forms.CheckBox();
+            this.jpexsGroup.SuspendLayout();
+            this.miscGroup.SuspendLayout();
+            this.encryptionGroup.SuspendLayout();
             this.SuspendLayout();
             // 
             // ripButton
             // 
             this.ripButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ripButton.Location = new System.Drawing.Point(7, 211);
+            this.ripButton.Location = new System.Drawing.Point(6, 302);
             this.ripButton.Margin = new System.Windows.Forms.Padding(4);
             this.ripButton.Name = "ripButton";
             this.ripButton.Size = new System.Drawing.Size(773, 30);
@@ -73,10 +81,10 @@ namespace GATOOLS
             this.encryptKey.Items.AddRange(new object[] {
             "g0o1a2n3i4m5a6t7e",
             "sorrypleasetryagainlater"});
-            this.encryptKey.Location = new System.Drawing.Point(471, 99);
+            this.encryptKey.Location = new System.Drawing.Point(471, 17);
             this.encryptKey.Margin = new System.Windows.Forms.Padding(4);
             this.encryptKey.Name = "encryptKey";
-            this.encryptKey.Size = new System.Drawing.Size(309, 24);
+            this.encryptKey.Size = new System.Drawing.Size(291, 24);
             this.encryptKey.TabIndex = 1;
             this.encryptKey.Text = "(auto)";
             this.encryptKey.SelectedIndexChanged += new System.EventHandler(this.encrypt_SelectedIndexChanged);
@@ -84,7 +92,7 @@ namespace GATOOLS
             // encLabel
             // 
             this.encLabel.AutoSize = true;
-            this.encLabel.Location = new System.Drawing.Point(355, 106);
+            this.encLabel.Location = new System.Drawing.Point(355, 24);
             this.encLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.encLabel.Name = "encLabel";
             this.encLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -98,7 +106,7 @@ namespace GATOOLS
             // 
             this.decEnabled.AutoSize = true;
             this.decEnabled.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.decEnabled.Location = new System.Drawing.Point(7, 104);
+            this.decEnabled.Location = new System.Drawing.Point(7, 22);
             this.decEnabled.Margin = new System.Windows.Forms.Padding(4);
             this.decEnabled.Name = "decEnabled";
             this.decEnabled.Size = new System.Drawing.Size(172, 21);
@@ -185,20 +193,22 @@ namespace GATOOLS
             // 
             this.log.AutoSize = true;
             this.log.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.log.Location = new System.Drawing.Point(4, 274);
+            this.log.Location = new System.Drawing.Point(4, 515);
             this.log.Name = "log";
-            this.log.Size = new System.Drawing.Size(323, 16);
+            this.log.Size = new System.Drawing.Size(286, 16);
             this.log.TabIndex = 16;
-            this.log.Text = "(When an action is preformed, logging appears here.)";
+            this.log.Text = "(The most recent action will be displayed here.)";
+            this.log.TextChanged += new System.EventHandler(this.log_TextChanged);
+            this.log.Click += new System.EventHandler(this.log_Click);
             // 
             // duration
             // 
             this.duration.BackColor = System.Drawing.SystemColors.Window;
             this.duration.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.duration.Location = new System.Drawing.Point(7, 248);
+            this.duration.Location = new System.Drawing.Point(7, 339);
             this.duration.Maximum = 0;
             this.duration.Name = "duration";
-            this.duration.Size = new System.Drawing.Size(773, 23);
+            this.duration.Size = new System.Drawing.Size(772, 23);
             this.duration.TabIndex = 17;
             // 
             // reEncEnabled
@@ -206,7 +216,7 @@ namespace GATOOLS
             this.reEncEnabled.AutoSize = true;
             this.reEncEnabled.Enabled = false;
             this.reEncEnabled.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.reEncEnabled.Location = new System.Drawing.Point(7, 127);
+            this.reEncEnabled.Location = new System.Drawing.Point(7, 45);
             this.reEncEnabled.Margin = new System.Windows.Forms.Padding(4);
             this.reEncEnabled.Name = "reEncEnabled";
             this.reEncEnabled.Size = new System.Drawing.Size(174, 21);
@@ -217,7 +227,7 @@ namespace GATOOLS
             // reEncLabel
             // 
             this.reEncLabel.AutoSize = true;
-            this.reEncLabel.Location = new System.Drawing.Point(334, 130);
+            this.reEncLabel.Location = new System.Drawing.Point(334, 48);
             this.reEncLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.reEncLabel.Name = "reEncLabel";
             this.reEncLabel.Size = new System.Drawing.Size(127, 16);
@@ -233,24 +243,24 @@ namespace GATOOLS
             this.reEncryptKey.Items.AddRange(new object[] {
             "g0o1a2n3i4m5a6t7e",
             "sorrypleasetryagainlater"});
-            this.reEncryptKey.Location = new System.Drawing.Point(471, 127);
+            this.reEncryptKey.Location = new System.Drawing.Point(471, 45);
             this.reEncryptKey.Margin = new System.Windows.Forms.Padding(4);
             this.reEncryptKey.Name = "reEncryptKey";
-            this.reEncryptKey.Size = new System.Drawing.Size(309, 24);
+            this.reEncryptKey.Size = new System.Drawing.Size(291, 24);
             this.reEncryptKey.TabIndex = 19;
             this.reEncryptKey.Text = "sorrypleasetryagainlater";
             // 
-            // experimentalGroup
+            // jpexsGroup
             // 
-            this.experimentalGroup.Controls.Add(this.hideCmd);
-            this.experimentalGroup.Controls.Add(this.deleteAfter);
-            this.experimentalGroup.Controls.Add(this.ffdecEnabled);
-            this.experimentalGroup.Location = new System.Drawing.Point(7, 156);
-            this.experimentalGroup.Name = "experimentalGroup";
-            this.experimentalGroup.Size = new System.Drawing.Size(773, 51);
-            this.experimentalGroup.TabIndex = 21;
-            this.experimentalGroup.TabStop = false;
-            this.experimentalGroup.Text = "JPEXS";
+            this.jpexsGroup.Controls.Add(this.hideCmd);
+            this.jpexsGroup.Controls.Add(this.deleteAfter);
+            this.jpexsGroup.Controls.Add(this.ffdecEnabled);
+            this.jpexsGroup.Location = new System.Drawing.Point(7, 186);
+            this.jpexsGroup.Name = "jpexsGroup";
+            this.jpexsGroup.Size = new System.Drawing.Size(772, 51);
+            this.jpexsGroup.TabIndex = 21;
+            this.jpexsGroup.TabStop = false;
+            this.jpexsGroup.Text = "Decompilation options (JPEXS required)";
             // 
             // hideCmd
             // 
@@ -298,25 +308,100 @@ namespace GATOOLS
             // 
             this.ripRedundant.AutoSize = true;
             this.ripRedundant.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.ripRedundant.Location = new System.Drawing.Point(612, 272);
+            this.ripRedundant.Location = new System.Drawing.Point(336, 22);
             this.ripRedundant.Margin = new System.Windows.Forms.Padding(4);
             this.ripRedundant.Name = "ripRedundant";
-            this.ripRedundant.Size = new System.Drawing.Size(168, 21);
+            this.ripRedundant.Size = new System.Drawing.Size(199, 21);
             this.ripRedundant.TabIndex = 22;
-            this.ripRedundant.Text = "Rip redundant files";
+            this.ripRedundant.Text = "Overwrite existing files ";
             this.ripRedundant.UseVisualStyleBackColor = true;
+            // 
+            // skipNonFlash
+            // 
+            this.skipNonFlash.AutoSize = true;
+            this.skipNonFlash.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.skipNonFlash.Location = new System.Drawing.Point(8, 22);
+            this.skipNonFlash.Margin = new System.Windows.Forms.Padding(4);
+            this.skipNonFlash.Name = "skipNonFlash";
+            this.skipNonFlash.Size = new System.Drawing.Size(169, 21);
+            this.skipNonFlash.TabIndex = 23;
+            this.skipNonFlash.Text = "Skip non-flash files";
+            this.skipNonFlash.UseVisualStyleBackColor = true;
+            this.skipNonFlash.CheckedChanged += new System.EventHandler(this.skipNonFlash_CheckedChanged);
+            // 
+            // miscGroup
+            // 
+            this.miscGroup.Controls.Add(this.logErrors);
+            this.miscGroup.Controls.Add(this.skipFlash);
+            this.miscGroup.Controls.Add(this.skipNonFlash);
+            this.miscGroup.Controls.Add(this.ripRedundant);
+            this.miscGroup.Location = new System.Drawing.Point(7, 243);
+            this.miscGroup.Name = "miscGroup";
+            this.miscGroup.Size = new System.Drawing.Size(772, 52);
+            this.miscGroup.TabIndex = 24;
+            this.miscGroup.TabStop = false;
+            this.miscGroup.Text = "Misc. options";
+            // 
+            // encryptionGroup
+            // 
+            this.encryptionGroup.Controls.Add(this.decEnabled);
+            this.encryptionGroup.Controls.Add(this.encryptKey);
+            this.encryptionGroup.Controls.Add(this.encLabel);
+            this.encryptionGroup.Controls.Add(this.reEncLabel);
+            this.encryptionGroup.Controls.Add(this.reEncEnabled);
+            this.encryptionGroup.Controls.Add(this.reEncryptKey);
+            this.encryptionGroup.Location = new System.Drawing.Point(6, 103);
+            this.encryptionGroup.Name = "encryptionGroup";
+            this.encryptionGroup.Size = new System.Drawing.Size(773, 77);
+            this.encryptionGroup.TabIndex = 25;
+            this.encryptionGroup.TabStop = false;
+            this.encryptionGroup.Text = "Encryption options";
+            // 
+            // logHistory
+            // 
+            this.logHistory.Location = new System.Drawing.Point(6, 365);
+            this.logHistory.Name = "logHistory";
+            this.logHistory.ReadOnly = true;
+            this.logHistory.Size = new System.Drawing.Size(773, 147);
+            this.logHistory.TabIndex = 26;
+            this.logHistory.Text = "(Actions will be logged here.)";
+            this.logHistory.WordWrap = false;
+            this.logHistory.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
+            // 
+            // skipFlash
+            // 
+            this.skipFlash.AutoSize = true;
+            this.skipFlash.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.skipFlash.Location = new System.Drawing.Point(185, 22);
+            this.skipFlash.Margin = new System.Windows.Forms.Padding(4);
+            this.skipFlash.Name = "skipFlash";
+            this.skipFlash.Size = new System.Drawing.Size(136, 21);
+            this.skipFlash.TabIndex = 24;
+            this.skipFlash.Text = "Skip flash files";
+            this.skipFlash.UseVisualStyleBackColor = true;
+            // 
+            // logErrors
+            // 
+            this.logErrors.AutoSize = true;
+            this.logErrors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.logErrors.Location = new System.Drawing.Point(543, 22);
+            this.logErrors.Margin = new System.Windows.Forms.Padding(4);
+            this.logErrors.Name = "logErrors";
+            this.logErrors.Size = new System.Drawing.Size(212, 21);
+            this.logErrors.TabIndex = 25;
+            this.logErrors.Text = "Only log errors to history";
+            this.logErrors.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(788, 302);
-            this.Controls.Add(this.ripRedundant);
-            this.Controls.Add(this.experimentalGroup);
-            this.Controls.Add(this.reEncLabel);
-            this.Controls.Add(this.reEncryptKey);
-            this.Controls.Add(this.reEncEnabled);
+            this.ClientSize = new System.Drawing.Size(788, 540);
+            this.Controls.Add(this.logHistory);
+            this.Controls.Add(this.encryptionGroup);
+            this.Controls.Add(this.miscGroup);
+            this.Controls.Add(this.jpexsGroup);
             this.Controls.Add(this.duration);
             this.Controls.Add(this.log);
             this.Controls.Add(this.CCCheck);
@@ -326,19 +411,20 @@ namespace GATOOLS
             this.Controls.Add(this.domainLabel);
             this.Controls.Add(this.tIdLabel);
             this.Controls.Add(this.themeId);
-            this.Controls.Add(this.decEnabled);
-            this.Controls.Add(this.encLabel);
-            this.Controls.Add(this.encryptKey);
             this.Controls.Add(this.ripButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "GoAnimateRipper2 v1.5.6";
+            this.Text = "GoAnimateRipper2 v1.6.0";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.experimentalGroup.ResumeLayout(false);
-            this.experimentalGroup.PerformLayout();
+            this.jpexsGroup.ResumeLayout(false);
+            this.jpexsGroup.PerformLayout();
+            this.miscGroup.ResumeLayout(false);
+            this.miscGroup.PerformLayout();
+            this.encryptionGroup.ResumeLayout(false);
+            this.encryptionGroup.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -362,11 +448,17 @@ namespace GATOOLS
         private System.Windows.Forms.CheckBox reEncEnabled;
         private System.Windows.Forms.Label reEncLabel;
         private System.Windows.Forms.ComboBox reEncryptKey;
-        private System.Windows.Forms.GroupBox experimentalGroup;
+        private System.Windows.Forms.GroupBox jpexsGroup;
         private System.Windows.Forms.CheckBox hideCmd;
         private System.Windows.Forms.CheckBox deleteAfter;
         private System.Windows.Forms.CheckBox ffdecEnabled;
         private System.Windows.Forms.CheckBox ripRedundant;
+        private System.Windows.Forms.CheckBox skipNonFlash;
+        private System.Windows.Forms.GroupBox miscGroup;
+        private System.Windows.Forms.GroupBox encryptionGroup;
+        private System.Windows.Forms.RichTextBox logHistory;
+        private System.Windows.Forms.CheckBox skipFlash;
+        private System.Windows.Forms.CheckBox logErrors;
     }
 }
 
