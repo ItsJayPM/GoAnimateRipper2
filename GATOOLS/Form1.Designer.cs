@@ -53,10 +53,10 @@ namespace GATOOLS
             this.ripRedundant = new System.Windows.Forms.CheckBox();
             this.skipNonFlash = new System.Windows.Forms.CheckBox();
             this.miscGroup = new System.Windows.Forms.GroupBox();
+            this.logErrors = new System.Windows.Forms.CheckBox();
+            this.skipFlash = new System.Windows.Forms.CheckBox();
             this.encryptionGroup = new System.Windows.Forms.GroupBox();
             this.logHistory = new System.Windows.Forms.RichTextBox();
-            this.skipFlash = new System.Windows.Forms.CheckBox();
-            this.logErrors = new System.Windows.Forms.CheckBox();
             this.jpexsGroup.SuspendLayout();
             this.miscGroup.SuspendLayout();
             this.encryptionGroup.SuspendLayout();
@@ -342,6 +342,30 @@ namespace GATOOLS
             this.miscGroup.TabStop = false;
             this.miscGroup.Text = "Misc. options";
             // 
+            // logErrors
+            // 
+            this.logErrors.AutoSize = true;
+            this.logErrors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.logErrors.Location = new System.Drawing.Point(543, 22);
+            this.logErrors.Margin = new System.Windows.Forms.Padding(4);
+            this.logErrors.Name = "logErrors";
+            this.logErrors.Size = new System.Drawing.Size(212, 21);
+            this.logErrors.TabIndex = 25;
+            this.logErrors.Text = "Only log errors to history";
+            this.logErrors.UseVisualStyleBackColor = true;
+            // 
+            // skipFlash
+            // 
+            this.skipFlash.AutoSize = true;
+            this.skipFlash.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.skipFlash.Location = new System.Drawing.Point(185, 22);
+            this.skipFlash.Margin = new System.Windows.Forms.Padding(4);
+            this.skipFlash.Name = "skipFlash";
+            this.skipFlash.Size = new System.Drawing.Size(136, 21);
+            this.skipFlash.TabIndex = 24;
+            this.skipFlash.Text = "Skip flash files";
+            this.skipFlash.UseVisualStyleBackColor = true;
+            // 
             // encryptionGroup
             // 
             this.encryptionGroup.Controls.Add(this.decEnabled);
@@ -368,30 +392,6 @@ namespace GATOOLS
             this.logHistory.WordWrap = false;
             this.logHistory.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
-            // skipFlash
-            // 
-            this.skipFlash.AutoSize = true;
-            this.skipFlash.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.skipFlash.Location = new System.Drawing.Point(185, 22);
-            this.skipFlash.Margin = new System.Windows.Forms.Padding(4);
-            this.skipFlash.Name = "skipFlash";
-            this.skipFlash.Size = new System.Drawing.Size(136, 21);
-            this.skipFlash.TabIndex = 24;
-            this.skipFlash.Text = "Skip flash files";
-            this.skipFlash.UseVisualStyleBackColor = true;
-            // 
-            // logErrors
-            // 
-            this.logErrors.AutoSize = true;
-            this.logErrors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.logErrors.Location = new System.Drawing.Point(543, 22);
-            this.logErrors.Margin = new System.Windows.Forms.Padding(4);
-            this.logErrors.Name = "logErrors";
-            this.logErrors.Size = new System.Drawing.Size(212, 21);
-            this.logErrors.TabIndex = 25;
-            this.logErrors.Text = "Only log errors to history";
-            this.logErrors.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -417,7 +417,7 @@ namespace GATOOLS
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "GoAnimateRipper2 v1.6.0";
+            this.Text = "GoAnimateRipper2 v1.6.1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.jpexsGroup.ResumeLayout(false);
             this.jpexsGroup.PerformLayout();

@@ -198,6 +198,7 @@ namespace GATOOLS
                     Directory.CreateDirectory(dir);
                     pathes.Add(GetLocalPath(path));
                     dir = $".\\\\ffdec_working\\" + (pathes.Count - 1) + ".swf";
+                    File.WriteAllBytes(dir, data);
 
                 }
                 else
