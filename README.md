@@ -23,4 +23,4 @@ Contact me on Discord if you need help using this program (my handle is izjay).
 ### Contributing
 Contributions are open, so if you see an improvement to be made, send in a pull request!
 ### License
-This codebase is completely open source, and can be modified as you please, and used freely. Just please give credit if you can!
+Read LICENSE for more information.
