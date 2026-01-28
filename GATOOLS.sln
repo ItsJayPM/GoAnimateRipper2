@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GATOOLS", "GATOOLS\GATOOLS.csproj", "{26B6D4FA-AE15-40C0-A0D2-1F045776E3C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoAnimateRipper2", "GATOOLS\GoAnimateRipper2.csproj", "{26B6D4FA-AE15-40C0-A0D2-1F045776E3C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

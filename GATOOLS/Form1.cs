@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
-namespace GATOOLS
+
+namespace GoAnimateRipper2
 {
     public partial class Form1 : Form
     {
@@ -147,7 +148,7 @@ namespace GATOOLS
                 return;
             }
 
-            if (isSwf && skipFlash.Checked || !isSwf && skipNonFlash.Checked)
+            if ((isSwf && skipFlash.Checked) || (!isSwf && skipNonFlash.Checked))
             {
                 downloadSuccess = false;
                 return;
@@ -297,6 +298,7 @@ namespace GATOOLS
         /// </summary>
         public void ReturnWithMessage(String mes)
         {
+            System.Media.SystemSounds.Hand.Play();
             log.Text = mes;
             ripButton.Enabled = true;
             ripButton.Text = "Start Ripping";
@@ -718,7 +720,7 @@ namespace GATOOLS
 
             }
 
-            if (skipNonFlash.Checked)
+            if (!skipNonFlash.Checked)
             {
                 var backgroundsthumb = xmlDoc.Elements("compositebg");
                 duration.Maximum = backgroundsthumb.Count();

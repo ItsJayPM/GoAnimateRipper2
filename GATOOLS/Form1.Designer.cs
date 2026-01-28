@@ -1,5 +1,5 @@
 ﻿
-namespace GATOOLS
+namespace GoAnimateRipper2
 {
     partial class Form1
     {
@@ -417,7 +417,7 @@ namespace GATOOLS
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "GoAnimateRipper2 v1.6.1";
+            this.Text = "GoAnimateRipper2 v1.6.1b";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.jpexsGroup.ResumeLayout(false);
             this.jpexsGroup.PerformLayout();
