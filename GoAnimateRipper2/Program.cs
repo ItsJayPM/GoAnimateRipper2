@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace GATOOLS
+namespace GoAnimateRipper2
 {
     static class Program
     {
