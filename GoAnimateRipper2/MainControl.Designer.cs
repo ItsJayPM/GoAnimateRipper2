@@ -1,7 +1,7 @@
 ﻿
 namespace GoAnimateRipper2
 {
-    partial class Form1
+    partial class MainControl
     {
         /// <summary>
         /// Required designer variable.
@@ -29,15 +29,15 @@ namespace GoAnimateRipper2
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainControl));
             this.ripButton = new System.Windows.Forms.Button();
             this.encryptKey = new System.Windows.Forms.ComboBox();
             this.encLabel = new System.Windows.Forms.Label();
             this.decEnabled = new System.Windows.Forms.CheckBox();
-            this.themeId = new System.Windows.Forms.TextBox();
+            this.themeIdInput = new System.Windows.Forms.TextBox();
             this.tIdLabel = new System.Windows.Forms.Label();
             this.domainLabel = new System.Windows.Forms.Label();
-            this.domain = new System.Windows.Forms.TextBox();
+            this.domainInput = new System.Windows.Forms.TextBox();
             this.themeCheck = new System.Windows.Forms.RadioButton();
             this.themeCCCheck = new System.Windows.Forms.RadioButton();
             this.CCCheck = new System.Windows.Forms.RadioButton();
@@ -48,13 +48,13 @@ namespace GoAnimateRipper2
             this.reEncryptKey = new System.Windows.Forms.ComboBox();
             this.jpexsGroup = new System.Windows.Forms.GroupBox();
             this.hideCmd = new System.Windows.Forms.CheckBox();
-            this.deleteAfter = new System.Windows.Forms.CheckBox();
+            this.reOrgDecomp = new System.Windows.Forms.CheckBox();
             this.ffdecEnabled = new System.Windows.Forms.CheckBox();
             this.ripRedundant = new System.Windows.Forms.CheckBox();
-            this.skipNonFlash = new System.Windows.Forms.CheckBox();
+            this.skipNonFlashCheckBox = new System.Windows.Forms.CheckBox();
             this.miscGroup = new System.Windows.Forms.GroupBox();
             this.logErrors = new System.Windows.Forms.CheckBox();
-            this.skipFlash = new System.Windows.Forms.CheckBox();
+            this.skipFlashCheckBox = new System.Windows.Forms.CheckBox();
             this.encryptionGroup = new System.Windows.Forms.GroupBox();
             this.logHistory = new System.Windows.Forms.RichTextBox();
             this.jpexsGroup.SuspendLayout();
@@ -115,14 +115,14 @@ namespace GoAnimateRipper2
             this.decEnabled.UseVisualStyleBackColor = true;
             this.decEnabled.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // themeId
+            // themeIdInput
             // 
-            this.themeId.Location = new System.Drawing.Point(81, 15);
-            this.themeId.Margin = new System.Windows.Forms.Padding(4);
-            this.themeId.Name = "themeId";
-            this.themeId.Size = new System.Drawing.Size(698, 22);
-            this.themeId.TabIndex = 7;
-            this.themeId.Text = "family";
+            this.themeIdInput.Location = new System.Drawing.Point(81, 15);
+            this.themeIdInput.Margin = new System.Windows.Forms.Padding(4);
+            this.themeIdInput.Name = "themeIdInput";
+            this.themeIdInput.Size = new System.Drawing.Size(698, 22);
+            this.themeIdInput.TabIndex = 7;
+            this.themeIdInput.Text = "family";
             // 
             // tIdLabel
             // 
@@ -144,15 +144,15 @@ namespace GoAnimateRipper2
             this.domainLabel.TabIndex = 9;
             this.domainLabel.Text = "Domain:";
             // 
-            // domain
+            // domainInput
             // 
-            this.domain.Location = new System.Drawing.Point(81, 48);
-            this.domain.Margin = new System.Windows.Forms.Padding(4);
-            this.domain.Name = "domain";
-            this.domain.Size = new System.Drawing.Size(698, 22);
-            this.domain.TabIndex = 10;
-            this.domain.Text = "https://flashthemes.net/static/store/";
-            this.domain.TextChanged += new System.EventHandler(this.dom_TextChanged);
+            this.domainInput.Location = new System.Drawing.Point(81, 48);
+            this.domainInput.Margin = new System.Windows.Forms.Padding(4);
+            this.domainInput.Name = "domainInput";
+            this.domainInput.Size = new System.Drawing.Size(698, 22);
+            this.domainInput.TabIndex = 10;
+            this.domainInput.Text = "https://flashthemes.net/static/store/";
+            this.domainInput.TextChanged += new System.EventHandler(this.dom_TextChanged);
             // 
             // themeCheck
             // 
@@ -253,7 +253,7 @@ namespace GoAnimateRipper2
             // jpexsGroup
             // 
             this.jpexsGroup.Controls.Add(this.hideCmd);
-            this.jpexsGroup.Controls.Add(this.deleteAfter);
+            this.jpexsGroup.Controls.Add(this.reOrgDecomp);
             this.jpexsGroup.Controls.Add(this.ffdecEnabled);
             this.jpexsGroup.Location = new System.Drawing.Point(7, 186);
             this.jpexsGroup.Name = "jpexsGroup";
@@ -276,20 +276,20 @@ namespace GoAnimateRipper2
             this.hideCmd.UseVisualStyleBackColor = true;
             this.hideCmd.CheckedChanged += new System.EventHandler(this.hideCMD_CheckedChanged);
             // 
-            // deleteAfter
+            // reOrgDecomp
             // 
-            this.deleteAfter.AutoSize = true;
-            this.deleteAfter.Checked = true;
-            this.deleteAfter.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.deleteAfter.Enabled = false;
-            this.deleteAfter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.deleteAfter.Location = new System.Drawing.Point(297, 22);
-            this.deleteAfter.Margin = new System.Windows.Forms.Padding(4);
-            this.deleteAfter.Name = "deleteAfter";
-            this.deleteAfter.Size = new System.Drawing.Size(257, 21);
-            this.deleteAfter.TabIndex = 23;
-            this.deleteAfter.Text = "Reorganize after decompilation";
-            this.deleteAfter.UseVisualStyleBackColor = true;
+            this.reOrgDecomp.AutoSize = true;
+            this.reOrgDecomp.Checked = true;
+            this.reOrgDecomp.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.reOrgDecomp.Enabled = false;
+            this.reOrgDecomp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.reOrgDecomp.Location = new System.Drawing.Point(297, 22);
+            this.reOrgDecomp.Margin = new System.Windows.Forms.Padding(4);
+            this.reOrgDecomp.Name = "reOrgDecomp";
+            this.reOrgDecomp.Size = new System.Drawing.Size(257, 21);
+            this.reOrgDecomp.TabIndex = 23;
+            this.reOrgDecomp.Text = "Reorganize after decompilation";
+            this.reOrgDecomp.UseVisualStyleBackColor = true;
             // 
             // ffdecEnabled
             // 
@@ -316,24 +316,24 @@ namespace GoAnimateRipper2
             this.ripRedundant.Text = "Overwrite existing files ";
             this.ripRedundant.UseVisualStyleBackColor = true;
             // 
-            // skipNonFlash
+            // skipNonFlashCheckBox
             // 
-            this.skipNonFlash.AutoSize = true;
-            this.skipNonFlash.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.skipNonFlash.Location = new System.Drawing.Point(8, 22);
-            this.skipNonFlash.Margin = new System.Windows.Forms.Padding(4);
-            this.skipNonFlash.Name = "skipNonFlash";
-            this.skipNonFlash.Size = new System.Drawing.Size(169, 21);
-            this.skipNonFlash.TabIndex = 23;
-            this.skipNonFlash.Text = "Skip non-flash files";
-            this.skipNonFlash.UseVisualStyleBackColor = true;
-            this.skipNonFlash.CheckedChanged += new System.EventHandler(this.skipNonFlash_CheckedChanged);
+            this.skipNonFlashCheckBox.AutoSize = true;
+            this.skipNonFlashCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.skipNonFlashCheckBox.Location = new System.Drawing.Point(8, 22);
+            this.skipNonFlashCheckBox.Margin = new System.Windows.Forms.Padding(4);
+            this.skipNonFlashCheckBox.Name = "skipNonFlashCheckBox";
+            this.skipNonFlashCheckBox.Size = new System.Drawing.Size(169, 21);
+            this.skipNonFlashCheckBox.TabIndex = 23;
+            this.skipNonFlashCheckBox.Text = "Skip non-flash files";
+            this.skipNonFlashCheckBox.UseVisualStyleBackColor = true;
+            this.skipNonFlashCheckBox.CheckedChanged += new System.EventHandler(this.skipNonFlash_CheckedChanged);
             // 
             // miscGroup
             // 
             this.miscGroup.Controls.Add(this.logErrors);
-            this.miscGroup.Controls.Add(this.skipFlash);
-            this.miscGroup.Controls.Add(this.skipNonFlash);
+            this.miscGroup.Controls.Add(this.skipFlashCheckBox);
+            this.miscGroup.Controls.Add(this.skipNonFlashCheckBox);
             this.miscGroup.Controls.Add(this.ripRedundant);
             this.miscGroup.Location = new System.Drawing.Point(7, 243);
             this.miscGroup.Name = "miscGroup";
@@ -354,17 +354,17 @@ namespace GoAnimateRipper2
             this.logErrors.Text = "Only log errors to history";
             this.logErrors.UseVisualStyleBackColor = true;
             // 
-            // skipFlash
+            // skipFlashCheckBox
             // 
-            this.skipFlash.AutoSize = true;
-            this.skipFlash.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.skipFlash.Location = new System.Drawing.Point(185, 22);
-            this.skipFlash.Margin = new System.Windows.Forms.Padding(4);
-            this.skipFlash.Name = "skipFlash";
-            this.skipFlash.Size = new System.Drawing.Size(136, 21);
-            this.skipFlash.TabIndex = 24;
-            this.skipFlash.Text = "Skip flash files";
-            this.skipFlash.UseVisualStyleBackColor = true;
+            this.skipFlashCheckBox.AutoSize = true;
+            this.skipFlashCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.skipFlashCheckBox.Location = new System.Drawing.Point(185, 22);
+            this.skipFlashCheckBox.Margin = new System.Windows.Forms.Padding(4);
+            this.skipFlashCheckBox.Name = "skipFlashCheckBox";
+            this.skipFlashCheckBox.Size = new System.Drawing.Size(136, 21);
+            this.skipFlashCheckBox.TabIndex = 24;
+            this.skipFlashCheckBox.Text = "Skip flash files";
+            this.skipFlashCheckBox.UseVisualStyleBackColor = true;
             // 
             // encryptionGroup
             // 
@@ -392,7 +392,7 @@ namespace GoAnimateRipper2
             this.logHistory.WordWrap = false;
             this.logHistory.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
-            // Form1
+            // MainControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -407,16 +407,16 @@ namespace GoAnimateRipper2
             this.Controls.Add(this.CCCheck);
             this.Controls.Add(this.themeCCCheck);
             this.Controls.Add(this.themeCheck);
-            this.Controls.Add(this.domain);
+            this.Controls.Add(this.domainInput);
             this.Controls.Add(this.domainLabel);
             this.Controls.Add(this.tIdLabel);
-            this.Controls.Add(this.themeId);
+            this.Controls.Add(this.themeIdInput);
             this.Controls.Add(this.ripButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "MainControl";
             this.Text = "GoAnimateRipper2 v1.6.1b";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.jpexsGroup.ResumeLayout(false);
@@ -436,10 +436,10 @@ namespace GoAnimateRipper2
         private System.Windows.Forms.ComboBox encryptKey;
         private System.Windows.Forms.Label encLabel;
         private System.Windows.Forms.CheckBox decEnabled;
-        private System.Windows.Forms.TextBox themeId;
+        private System.Windows.Forms.TextBox themeIdInput;
         private System.Windows.Forms.Label tIdLabel;
         private System.Windows.Forms.Label domainLabel;
-        private System.Windows.Forms.TextBox domain;
+        private System.Windows.Forms.TextBox domainInput;
         private System.Windows.Forms.RadioButton themeCheck;
         private System.Windows.Forms.RadioButton themeCCCheck;
         private System.Windows.Forms.RadioButton CCCheck;
@@ -450,14 +450,14 @@ namespace GoAnimateRipper2
         private System.Windows.Forms.ComboBox reEncryptKey;
         private System.Windows.Forms.GroupBox jpexsGroup;
         private System.Windows.Forms.CheckBox hideCmd;
-        private System.Windows.Forms.CheckBox deleteAfter;
+        private System.Windows.Forms.CheckBox reOrgDecomp;
         private System.Windows.Forms.CheckBox ffdecEnabled;
         private System.Windows.Forms.CheckBox ripRedundant;
-        private System.Windows.Forms.CheckBox skipNonFlash;
+        private System.Windows.Forms.CheckBox skipNonFlashCheckBox;
         private System.Windows.Forms.GroupBox miscGroup;
         private System.Windows.Forms.GroupBox encryptionGroup;
         private System.Windows.Forms.RichTextBox logHistory;
-        private System.Windows.Forms.CheckBox skipFlash;
+        private System.Windows.Forms.CheckBox skipFlashCheckBox;
         private System.Windows.Forms.CheckBox logErrors;
     }
 }
