@@ -258,9 +258,9 @@ namespace GoAnimateRipper2
             this.expPreview.Location = new System.Drawing.Point(562, 22);
             this.expPreview.Margin = new System.Windows.Forms.Padding(4);
             this.expPreview.Name = "expPreview";
-            this.expPreview.Size = new System.Drawing.Size(208, 21);
+            this.expPreview.Size = new System.Drawing.Size(193, 21);
             this.expPreview.TabIndex = 24;
-            this.expPreview.Text = "[EXPER.] Export Preview";
+            this.expPreview.Text = "[EXPR] Export Preview";
             this.expPreview.UseVisualStyleBackColor = true;
             this.expPreview.CheckedChanged += new System.EventHandler(this.hideCMD_CheckedChanged);
             // 
@@ -404,7 +404,7 @@ namespace GoAnimateRipper2
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "MainControl";
-            this.Text = "GoAnimateRipper2 v1.6.1b";
+            this.Text = "GoAnimateRipper2";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.jpexsGroup.ResumeLayout(false);
             this.jpexsGroup.PerformLayout();

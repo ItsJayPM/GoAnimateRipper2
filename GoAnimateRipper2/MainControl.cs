@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace GoAnimateRipper2
 {
     public partial class MainControl : Form
     {
+        private readonly String FORM_NAME = "GoAnimateRipper2";
+        private readonly String VERSION = Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(0, Assembly.GetExecutingAssembly().GetName().Version.ToString().LastIndexOf("."));
         //Publicly exposed control options
         //Set when start button pressed
         public bool doDecryption;
@@ -190,7 +193,11 @@ namespace GoAnimateRipper2
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Text = FORM_NAME + " v" + VERSION;
 
+#if DEBUG
+            Text = FORM_NAME + " DEBUG Build! WIP ... v" + VERSION;
+#endif
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
