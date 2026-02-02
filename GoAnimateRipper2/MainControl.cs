@@ -26,8 +26,8 @@ namespace GoAnimateRipper2
         public bool skipFlash;
         public bool skipNonFlash;
         public bool decOrganize;
-        public bool decDontShowCmd;
-        public bool decImageOut = false;
+        public bool decDontShowCmd = false;
+        public bool decImageOut;
         public bool overwriteFiles;
         public bool logErrorsOnly;
 
