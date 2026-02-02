@@ -24,6 +24,7 @@ namespace GoAnimateRipper2
         public bool skipNonFlash;
         public bool decOrganize;
         public bool decDontShowCmd;
+        public bool decImageOut = false;
         public bool overwriteFiles;
         public bool logErrorsOnly;
 
@@ -61,7 +62,7 @@ namespace GoAnimateRipper2
             skipFlash = skipFlashCheckBox.Checked;
             skipNonFlash = skipNonFlashCheckBox.Checked;
             decOrganize = reOrgDecomp.Checked;
-            decDontShowCmd = hideCmd.Checked;
+            decImageOut = expPreview.Checked;
             overwriteFiles = ripRedundant.Checked;
             logErrorsOnly = logErrors.Checked;
 
@@ -81,16 +82,17 @@ namespace GoAnimateRipper2
                 ReturnWithMessage("What are you trying to do?");
                 return;
             }
-            if (themeCheck.Checked)
+            RipperBase ripper;
+            if (CCCheck.Checked)
             {
-                StandardRipper ripper = new StandardRipper(this, themeId);
-                await ripper.StartRip();
+                ripper = new CCRipper(this, themeId);
             }
-            else if (CCCheck.Checked)
+            else
             {
-                CCRipper ripper = new CCRipper(this, themeId);
-                await ripper.StartRip();
+                ripper = new StandardRipper(this, themeId);
             }
+            await ripper.StartRip();
+
         }
 
         /// <summary>
@@ -108,7 +110,7 @@ namespace GoAnimateRipper2
             themeIdInput.Enabled = false;
             ffdecEnabled.Enabled = false;
             reOrgDecomp.Enabled = false;
-            hideCmd.Enabled = false;
+            expPreview.Enabled = false;
             ripRedundant.Enabled = false;
             domainInput.Enabled = false;
             skipNonFlashCheckBox.Enabled = false;
@@ -140,7 +142,7 @@ namespace GoAnimateRipper2
             ripButton.Text = "Start Ripping";
             ffdecEnabled.Enabled = true;
             reOrgDecomp.Enabled = ffdecEnabled.Checked;
-            hideCmd.Enabled = ffdecEnabled.Checked;
+            expPreview.Enabled = ffdecEnabled.Checked;
             encryptKey.Enabled = !ffdecEnabled.Checked;
             reEncEnabled.Enabled = !ffdecEnabled.Checked && decEnabled.Checked;
             reEncryptKey.Enabled = !ffdecEnabled.Checked;
@@ -227,7 +229,7 @@ namespace GoAnimateRipper2
                 reEncEnabled.Checked = false;
                 reEncEnabled.Enabled = false;
                 reOrgDecomp.Enabled = true;
-                hideCmd.Enabled = true;
+                expPreview.Enabled = true;
             }
             else
             {
@@ -235,7 +237,7 @@ namespace GoAnimateRipper2
                 encryptKey.Enabled = true;
                 reEncEnabled.Enabled = true;
                 reOrgDecomp.Enabled = false;
-                hideCmd.Enabled = false;
+                expPreview.Enabled = false;
             }
 
         }

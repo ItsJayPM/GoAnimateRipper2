@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -14,6 +15,24 @@ namespace GoAnimateRipper2
         public StandardRipper(MainControl mainControl, string themeId) : base(mainControl, themeId)
         {
             xmlFilename = "theme.xml";
+        }
+
+        public async Task downloadGenericAssets(String elm, String targetProperty, String acceptFormat = null)
+        {
+            var elements = xmlDoc.Elements(elm);
+            mainControl.setProgressBarMaximum(elements.Count());
+            mainControl.resetProgressBar();
+            foreach (var element in elements)
+            {
+                var elementId = element.Attributes().Where(a => a.Name == targetProperty).Single().Value;
+                if (elementId.Contains(acceptFormat) || acceptFormat == null)
+                {
+                    fileLocation = $"{themeId}\\{elm}\\{elementId}";
+                    downloadSuccess = await assetManager.DownloadAsset(fileLocation, mainControl.doDecryption);
+                    if (downloadSuccess) mainControl.writeMessage($"Downloaded {elm} '{elementId}'.");
+                }
+                mainControl.incrementProgressBar();
+            }
         }
 
         public async Task StartRip()
@@ -53,33 +72,8 @@ namespace GoAnimateRipper2
                 }
 
 
-                var effects = xmlDoc.Elements("effect");
-                mainControl.setProgressBarMaximum(effects.Count());
-                mainControl.resetProgressBar();
-                foreach (var effect in effects)
-                {
-                    var effectId = effect.Attributes().Where(a => a.Name == "id").Single().Value;
-                    if (effectId.Contains(".swf"))
-                    {
-                        fileLocation = $"{themeId}\\effect\\{effectId}";
-                        downloadSuccess = await assetManager.DownloadAsset(fileLocation, mainControl.doDecryption);
-                        if (downloadSuccess) mainControl.writeMessage($"Downloaded effect '{effectId}'.");
-                    }
-                    mainControl.incrementProgressBar();
-                }
-
-                var backgrounds = xmlDoc.Elements("background");
-                mainControl.setProgressBarMaximum(backgrounds.Count());
-                mainControl.resetProgressBar();
-                foreach (var background in backgrounds)
-                {
-                    var bgId = background.Attributes().Where(a => a.Name == "id").Single().Value;
-                    fileLocation = $"{themeId}\\bg\\{bgId}";
-
-                    downloadSuccess = await assetManager.DownloadAsset(fileLocation, mainControl.doDecryption);
-                    if (downloadSuccess) mainControl.writeMessage($"Downloaded background '{bgId}'.");
-                    mainControl.incrementProgressBar();
-                }
+                await downloadGenericAssets("effect","id",".swf");
+                await downloadGenericAssets("background", "id");
 
                 var chars = xmlDoc.Elements("char");
                 mainControl.setProgressBarMaximum(chars.Count());
@@ -185,24 +179,9 @@ namespace GoAnimateRipper2
                 if (downloadSuccess) mainControl.writeMessage($"Downloaded widget thumbnail '{widgetThumb}'.");
                 mainControl.incrementProgressBar();
             }
-
-            var flows = xmlDoc.Elements("flow");
-            mainControl.setProgressBarMaximum(flows.Count());
-            mainControl.resetProgressBar();
-            foreach (var flow in flows)
-            {
-                var flowId = flow.Attributes().Where(a => a.Name == "id").Single().Value;
-                var flowThumb = flow.Attributes().Where(a => a.Name == "thumb").Single().Value;
-
-                fileLocation = $"{themeId}\\flow\\";
-                await assetManager.DownloadAsset(fileLocation + flowId, mainControl.doDecryption);
-                downloadSuccess = await assetManager.DownloadAsset(fileLocation + flowThumb, false);
-
-
-                if (downloadSuccess) mainControl.writeMessage($"Downloaded flow frame '{flowId}'.");
-                mainControl.incrementProgressBar();
-
-            }
+            await downloadGenericAssets("widget", "thumb");
+            await downloadGenericAssets("flow", "id");
+            await downloadGenericAssets("flow", "thumb");
 
             if (!mainControl.skipNonFlash)
             {

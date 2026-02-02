@@ -11,10 +11,12 @@ namespace GoAnimateRipper2.Managers
     {
         MainControl mainControl;
         List<string> pathes;
+        String outputType = "fla";
         public DecompManager(MainControl mainControl, List<string> pathes)
         {
             this.mainControl = mainControl;
             this.pathes = pathes;
+            if (mainControl.decImageOut) outputType = "frame";
         }
 
         /// <summary>
@@ -24,7 +26,9 @@ namespace GoAnimateRipper2.Managers
         {
             Directory.CreateDirectory($".\\ffdec_output");
             System.Diagnostics.Process process = new System.Diagnostics.Process();
-            String cmd = $"ffdec.bat -export fla \"{System.AppContext.BaseDirectory}ffdec_output\"  \"{System.AppContext.BaseDirectory}ffdec_working\"";
+            String imageCommand = "";
+            if (outputType == "frame") imageCommand = "-select 1 -ignorebackground -zoom 2";
+            String cmd = $"ffdec.bat {imageCommand} -export {outputType} \"{System.AppContext.BaseDirectory}ffdec_output\"  \"{System.AppContext.BaseDirectory}ffdec_working\"";
             //Console.WriteLine(cmd);
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c " + cmd);
             if (mainControl.decDontShowCmd) startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
@@ -56,14 +60,26 @@ namespace GoAnimateRipper2.Managers
                 //Console.WriteLine("SUCCESS!");
                 for (int i = 0; i < pathes.Count; i++)
                 {
-                    String projectedPath = $".\\ffdec_output\\{i}.swf";
-                    String finalLocation = pathes[i].Substring(0, pathes[i].LastIndexOf("."));
-                    String finalName = finalLocation.Substring(finalLocation.LastIndexOf("\\"));
-                    if (Directory.Exists(projectedPath))
+                    if (outputType == "fla")
                     {
-                        //Console.WriteLine($"{i} is associated to {finalLocation}");
-                        Directory.Move(projectedPath, finalLocation);
-                        File.Move(finalLocation + $"\\{i}.fla", finalLocation + $"\\{finalName}.fla");
+                        String projectedPath = $".\\ffdec_output\\{i}.swf";
+                        String finalLocation = pathes[i].Substring(0, pathes[i].LastIndexOf("."));
+                        String finalName = finalLocation.Substring(finalLocation.LastIndexOf("\\"));
+                        if (Directory.Exists(projectedPath))
+                        {
+                            //Console.WriteLine($"{i} is associated to {finalLocation}");
+                            Directory.Move(projectedPath, finalLocation);
+                            File.Move(finalLocation + $"\\{i}.fla", finalLocation + $"\\{finalName}.fla");
+                        }
+                    }
+                    else
+                    {
+                        String projectedPath = $".\\ffdec_output\\{i}.swf"; //???
+                        String finalLocation = pathes[i].Substring(0, pathes[i].LastIndexOf("."));
+                        if (Directory.Exists(projectedPath))
+                        {
+                            File.Move(projectedPath + "\\1.png", finalLocation + ".png");
+                        }
                     }
                 }
                 Directory.Delete($".\\ffdec_output", true);

@@ -39,7 +39,6 @@ namespace GoAnimateRipper2
             this.domainLabel = new System.Windows.Forms.Label();
             this.domainInput = new System.Windows.Forms.TextBox();
             this.themeCheck = new System.Windows.Forms.RadioButton();
-            this.themeCCCheck = new System.Windows.Forms.RadioButton();
             this.CCCheck = new System.Windows.Forms.RadioButton();
             this.log = new System.Windows.Forms.Label();
             this.duration = new System.Windows.Forms.ProgressBar();
@@ -47,7 +46,7 @@ namespace GoAnimateRipper2
             this.reEncLabel = new System.Windows.Forms.Label();
             this.reEncryptKey = new System.Windows.Forms.ComboBox();
             this.jpexsGroup = new System.Windows.Forms.GroupBox();
-            this.hideCmd = new System.Windows.Forms.CheckBox();
+            this.expPreview = new System.Windows.Forms.CheckBox();
             this.reOrgDecomp = new System.Windows.Forms.CheckBox();
             this.ffdecEnabled = new System.Windows.Forms.CheckBox();
             this.ripRedundant = new System.Windows.Forms.CheckBox();
@@ -165,22 +164,11 @@ namespace GoAnimateRipper2
             this.themeCheck.UseVisualStyleBackColor = true;
             this.themeCheck.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
             // 
-            // themeCCCheck
-            // 
-            this.themeCCCheck.AutoSize = true;
-            this.themeCCCheck.Location = new System.Drawing.Point(83, 77);
-            this.themeCCCheck.Name = "themeCCCheck";
-            this.themeCCCheck.Size = new System.Drawing.Size(299, 20);
-            this.themeCCCheck.TabIndex = 14;
-            this.themeCCCheck.Text = "Theme (+Attatched Character Creator Theme)";
-            this.themeCCCheck.UseVisualStyleBackColor = true;
-            this.themeCCCheck.CheckedChanged += new System.EventHandler(this.ThemeCCCheck_CheckedChanged);
-            // 
             // CCCheck
             // 
             this.CCCheck.AutoSize = true;
             this.CCCheck.Checked = true;
-            this.CCCheck.Location = new System.Drawing.Point(403, 77);
+            this.CCCheck.Location = new System.Drawing.Point(81, 77);
             this.CCCheck.Name = "CCCheck";
             this.CCCheck.Size = new System.Drawing.Size(179, 20);
             this.CCCheck.TabIndex = 15;
@@ -252,7 +240,7 @@ namespace GoAnimateRipper2
             // 
             // jpexsGroup
             // 
-            this.jpexsGroup.Controls.Add(this.hideCmd);
+            this.jpexsGroup.Controls.Add(this.expPreview);
             this.jpexsGroup.Controls.Add(this.reOrgDecomp);
             this.jpexsGroup.Controls.Add(this.ffdecEnabled);
             this.jpexsGroup.Location = new System.Drawing.Point(7, 186);
@@ -262,19 +250,19 @@ namespace GoAnimateRipper2
             this.jpexsGroup.TabStop = false;
             this.jpexsGroup.Text = "Decompilation options (JPEXS required)";
             // 
-            // hideCmd
+            // expPreview
             // 
-            this.hideCmd.AutoSize = true;
-            this.hideCmd.Enabled = false;
-            this.hideCmd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.hideCmd.Location = new System.Drawing.Point(562, 22);
-            this.hideCmd.Margin = new System.Windows.Forms.Padding(4);
-            this.hideCmd.Name = "hideCmd";
-            this.hideCmd.Size = new System.Drawing.Size(194, 21);
-            this.hideCmd.TabIndex = 24;
-            this.hideCmd.Text = "Hide Command Prompt";
-            this.hideCmd.UseVisualStyleBackColor = true;
-            this.hideCmd.CheckedChanged += new System.EventHandler(this.hideCMD_CheckedChanged);
+            this.expPreview.AutoSize = true;
+            this.expPreview.Enabled = false;
+            this.expPreview.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.expPreview.Location = new System.Drawing.Point(562, 22);
+            this.expPreview.Margin = new System.Windows.Forms.Padding(4);
+            this.expPreview.Name = "expPreview";
+            this.expPreview.Size = new System.Drawing.Size(208, 21);
+            this.expPreview.TabIndex = 24;
+            this.expPreview.Text = "[EXPER.] Export Preview";
+            this.expPreview.UseVisualStyleBackColor = true;
+            this.expPreview.CheckedChanged += new System.EventHandler(this.hideCMD_CheckedChanged);
             // 
             // reOrgDecomp
             // 
@@ -405,7 +393,6 @@ namespace GoAnimateRipper2
             this.Controls.Add(this.duration);
             this.Controls.Add(this.log);
             this.Controls.Add(this.CCCheck);
-            this.Controls.Add(this.themeCCCheck);
             this.Controls.Add(this.themeCheck);
             this.Controls.Add(this.domainInput);
             this.Controls.Add(this.domainLabel);
@@ -441,7 +428,6 @@ namespace GoAnimateRipper2
         private System.Windows.Forms.Label domainLabel;
         private System.Windows.Forms.TextBox domainInput;
         private System.Windows.Forms.RadioButton themeCheck;
-        private System.Windows.Forms.RadioButton themeCCCheck;
         private System.Windows.Forms.RadioButton CCCheck;
         private System.Windows.Forms.Label log;
         private System.Windows.Forms.ProgressBar duration;
@@ -449,16 +435,16 @@ namespace GoAnimateRipper2
         private System.Windows.Forms.Label reEncLabel;
         private System.Windows.Forms.ComboBox reEncryptKey;
         private System.Windows.Forms.GroupBox jpexsGroup;
-        private System.Windows.Forms.CheckBox hideCmd;
+        private System.Windows.Forms.CheckBox expPreview;
         private System.Windows.Forms.CheckBox reOrgDecomp;
         private System.Windows.Forms.CheckBox ffdecEnabled;
         private System.Windows.Forms.CheckBox ripRedundant;
         private System.Windows.Forms.CheckBox skipNonFlashCheckBox;
         private System.Windows.Forms.GroupBox miscGroup;
         private System.Windows.Forms.GroupBox encryptionGroup;
-        private System.Windows.Forms.RichTextBox logHistory;
         private System.Windows.Forms.CheckBox skipFlashCheckBox;
         private System.Windows.Forms.CheckBox logErrors;
+        private System.Windows.Forms.RichTextBox logHistory;
     }
 }
 
