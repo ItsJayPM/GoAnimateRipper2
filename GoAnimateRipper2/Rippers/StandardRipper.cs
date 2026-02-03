@@ -17,6 +17,10 @@ namespace GoAnimateRipper2
             xmlFilename = "theme.xml";
         }
 
+        /// <summary>
+        /// Task <c>downloadGenericAssets</c> downloads assets that get generic and predictable types of assets.
+        /// 
+        /// </summary>
         public async Task downloadGenericAssets(String elm, String targetProperty, String acceptFormat = null)
         {
             var elements = xmlDoc.Elements(elm);
@@ -34,7 +38,9 @@ namespace GoAnimateRipper2
                 mainControl.incrementProgressBar();
             }
         }
-
+        /// <summary>
+        /// void <c>StartRip</c> starts the ripper.
+        /// </summary>
         public async Task StartRip()
         {
             if (!await initializeRipper()) return;

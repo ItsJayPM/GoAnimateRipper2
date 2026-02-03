@@ -18,6 +18,10 @@ namespace GoAnimateRipper2
             xmlFilename = "cc_theme.xml";
             folder = "cc_store/";
         }
+
+        /// <summary>
+        /// void <c>StartRip</c> starts the ripper.
+        /// </summary>
         public async Task StartRip()
         {
             if (!await initializeRipper()) return;

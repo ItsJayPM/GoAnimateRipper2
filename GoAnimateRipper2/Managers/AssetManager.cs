@@ -27,6 +27,12 @@ namespace GoAnimateRipper2
             key = Encoding.ASCII.GetBytes(mainControl.decryptionKey);
         }
 
+        /// <summary>
+        /// Task <c>DownloadAssetDirect</c> downloads the asset with direct addressing.
+        /// </summary>
+        /// (<paramref name="url"/>,<paramref name="path"/>)
+        /// <param name="url">The url the asset is located.</param>
+        /// <param name="path">The path where it needs to be downloaded.</param>
         public async Task<bool> DownloadAssetDirect(string url, string path)
         {
             using (var response = await httpClient.GetAsync(url))
@@ -42,6 +48,12 @@ namespace GoAnimateRipper2
             }
         }
 
+        /// <summary>
+        /// Task <c>DownloadAsset</c> downloads the asset, and if applicable, decrypts, re-encrypts, and sets up for decompiling.
+        /// </summary>
+        /// (<paramref name="path"/>,<paramref name="isSupposedToHaveEncryption"/>)
+        /// <param name="path">The path fragment. The function handles the local and download with the fragment.</param>
+        /// <param name="isSupposedToHaveEncryption">If the file is SUPPOSED to have encryption; Only applicable to SWFs.</param>
         public async Task<bool> DownloadAsset(string path, bool isSupposedToHaveEncryption)
         {
             //Setup Phase.

@@ -36,17 +36,25 @@ namespace GoAnimateRipper2
         public String decryptionKey;
         public String reEncryptionKey;
 
-
+        /// <summary>
+        /// public void <c>setProgressBarMaximum</c> sets the progress bar maximum.
+        /// </summary>
         public void setProgressBarMaximum(int max)
         {
             duration.Maximum = max;
         }
 
+        /// <summary>
+        /// public void <c>incrementProgressBar</c> increase the progress bar.
+        /// </summary>
         public void incrementProgressBar()
         {
             duration.Value++;
         }
 
+        /// <summary>
+        /// public void <c>resetProgressBar</c> reset the progress bar.
+        /// </summary>
         public void resetProgressBar()
         {
             duration.Value = 0;
@@ -164,34 +172,13 @@ namespace GoAnimateRipper2
             InitializeComponent();
         }
 
-        async private void button1_Click(object sender, EventArgs e)
+        async private void RipButton_Click(object sender, EventArgs e)
         {
             ripButton.Enabled = false;
             await StartProceedure();
         }
 
-        private void encrypt_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var key = encryptKey.SelectedItem;
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            reEncEnabled.Enabled = decEnabled.Checked;
-        }
-
-        private void dom_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
+        private void MainControl_Load(object sender, EventArgs e)
         {
             Text = FORM_NAME + " v" + VERSION;
 
@@ -200,24 +187,30 @@ namespace GoAnimateRipper2
 #endif
         }
 
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        //Quick way to bodge in the log actually being useful.
+        private void Log_TextChanged(object sender, EventArgs e)
         {
+            if (!logErrors.Checked || log.Text.Contains("[ERROR]"))
+            {
+                if (logHistory.Text.Length > 0)
+                {
+                    logHistory.Text += "\n" + log.Text;
+                }
+                else
+                {
+                    logHistory.Text = log.Text;
+                }
+                logHistory.SelectionStart = logHistory.Text.Length;
+                logHistory.ScrollToCaret();
+            }
         }
 
-        private void ThemeCCCheck_CheckedChanged(object sender, EventArgs e)
+        private void decEnabled_Click(object sender, EventArgs e)
         {
+            reEncEnabled.Enabled = decEnabled.Checked;
         }
 
-        private void CCCheck_CheckedChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void label2_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void JPEXStoggle_CheckedChanged(object sender, EventArgs e)
+        private void ffdecEnabled_CheckedChanged(object sender, EventArgs e)
         {
             if (ffdecEnabled.Checked)
             {
@@ -246,45 +239,6 @@ namespace GoAnimateRipper2
                 reOrgDecomp.Enabled = false;
                 expPreview.Enabled = false;
             }
-
-        }
-
-        private void hideCMD_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void log_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        //Quick way to bodge in the log actually being useful.
-        private void log_TextChanged(object sender, EventArgs e)
-        {
-            if (!logErrors.Checked || log.Text.Contains("[ERROR]"))
-            {
-                if (logHistory.Text.Length > 0)
-                {
-                    logHistory.Text += "\n" + log.Text;
-                }
-                else
-                {
-                    logHistory.Text = log.Text;
-                }
-                logHistory.SelectionStart = logHistory.Text.Length;
-                logHistory.ScrollToCaret();
-            }
-        }
-
-        private void skipNonFlash_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

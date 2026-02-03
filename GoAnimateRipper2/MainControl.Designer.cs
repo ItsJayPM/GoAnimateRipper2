@@ -71,7 +71,7 @@ namespace GoAnimateRipper2
             this.ripButton.TabIndex = 0;
             this.ripButton.Text = "Start Ripping";
             this.ripButton.UseVisualStyleBackColor = true;
-            this.ripButton.Click += new System.EventHandler(this.button1_Click);
+            this.ripButton.Click += new System.EventHandler(this.RipButton_Click);
             // 
             // encryptKey
             // 
@@ -86,7 +86,6 @@ namespace GoAnimateRipper2
             this.encryptKey.Size = new System.Drawing.Size(291, 24);
             this.encryptKey.TabIndex = 1;
             this.encryptKey.Text = "(auto)";
-            this.encryptKey.SelectedIndexChanged += new System.EventHandler(this.encrypt_SelectedIndexChanged);
             // 
             // encLabel
             // 
@@ -99,7 +98,6 @@ namespace GoAnimateRipper2
             this.encLabel.TabIndex = 2;
             this.encLabel.Text = "Encrypytion Key:";
             this.encLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.encLabel.Click += new System.EventHandler(this.label1_Click);
             // 
             // decEnabled
             // 
@@ -112,7 +110,7 @@ namespace GoAnimateRipper2
             this.decEnabled.TabIndex = 3;
             this.decEnabled.Text = "Decryption Enabled";
             this.decEnabled.UseVisualStyleBackColor = true;
-            this.decEnabled.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.decEnabled.Click += new System.EventHandler(this.decEnabled_Click);
             // 
             // themeIdInput
             // 
@@ -151,7 +149,6 @@ namespace GoAnimateRipper2
             this.domainInput.Size = new System.Drawing.Size(698, 22);
             this.domainInput.TabIndex = 10;
             this.domainInput.Text = "https://flashthemes.net/static/store/";
-            this.domainInput.TextChanged += new System.EventHandler(this.dom_TextChanged);
             // 
             // themeCheck
             // 
@@ -162,7 +159,6 @@ namespace GoAnimateRipper2
             this.themeCheck.TabIndex = 13;
             this.themeCheck.Text = "Theme\r\n";
             this.themeCheck.UseVisualStyleBackColor = true;
-            this.themeCheck.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
             // 
             // CCCheck
             // 
@@ -175,7 +171,6 @@ namespace GoAnimateRipper2
             this.CCCheck.TabStop = true;
             this.CCCheck.Text = "Character Creator Theme";
             this.CCCheck.UseVisualStyleBackColor = true;
-            this.CCCheck.CheckedChanged += new System.EventHandler(this.CCCheck_CheckedChanged);
             // 
             // log
             // 
@@ -186,8 +181,7 @@ namespace GoAnimateRipper2
             this.log.Size = new System.Drawing.Size(286, 16);
             this.log.TabIndex = 16;
             this.log.Text = "(The most recent action will be displayed here.)";
-            this.log.TextChanged += new System.EventHandler(this.log_TextChanged);
-            this.log.Click += new System.EventHandler(this.log_Click);
+            this.log.TextChanged += new System.EventHandler(this.Log_TextChanged);
             // 
             // duration
             // 
@@ -222,7 +216,6 @@ namespace GoAnimateRipper2
             this.reEncLabel.TabIndex = 20;
             this.reEncLabel.Text = "Re-encrypytion Key:";
             this.reEncLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.reEncLabel.Click += new System.EventHandler(this.label2_Click_1);
             // 
             // reEncryptKey
             // 
@@ -262,7 +255,6 @@ namespace GoAnimateRipper2
             this.expPreview.TabIndex = 24;
             this.expPreview.Text = "[EXPR] Export Preview";
             this.expPreview.UseVisualStyleBackColor = true;
-            this.expPreview.CheckedChanged += new System.EventHandler(this.hideCMD_CheckedChanged);
             // 
             // reOrgDecomp
             // 
@@ -290,7 +282,7 @@ namespace GoAnimateRipper2
             this.ffdecEnabled.TabIndex = 22;
             this.ffdecEnabled.Text = "Attempt to decompile automatically";
             this.ffdecEnabled.UseVisualStyleBackColor = true;
-            this.ffdecEnabled.CheckedChanged += new System.EventHandler(this.JPEXStoggle_CheckedChanged);
+            this.ffdecEnabled.CheckedChanged += new System.EventHandler(this.ffdecEnabled_CheckedChanged);
             // 
             // ripRedundant
             // 
@@ -315,7 +307,6 @@ namespace GoAnimateRipper2
             this.skipNonFlashCheckBox.TabIndex = 23;
             this.skipNonFlashCheckBox.Text = "Skip non-flash files";
             this.skipNonFlashCheckBox.UseVisualStyleBackColor = true;
-            this.skipNonFlashCheckBox.CheckedChanged += new System.EventHandler(this.skipNonFlash_CheckedChanged);
             // 
             // miscGroup
             // 
@@ -378,7 +369,6 @@ namespace GoAnimateRipper2
             this.logHistory.TabIndex = 26;
             this.logHistory.Text = "(Actions will be logged here.)";
             this.logHistory.WordWrap = false;
-            this.logHistory.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
             // MainControl
             // 
@@ -405,7 +395,7 @@ namespace GoAnimateRipper2
             this.MaximizeBox = false;
             this.Name = "MainControl";
             this.Text = "GoAnimateRipper2";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.MainControl_Load);
             this.jpexsGroup.ResumeLayout(false);
             this.jpexsGroup.PerformLayout();
             this.miscGroup.ResumeLayout(false);

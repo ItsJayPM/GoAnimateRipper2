@@ -30,7 +30,9 @@ namespace GoAnimateRipper2
             this.themeId = themeId;
         }
 
-        // Sorta dumb but sorta neat
+        /// <summary>
+        /// void <c>initializeRipper</c> does setup that both rippers share.
+        /// </summary>
         public async Task<bool> initializeRipper()
         {
             mainControl.LockControl();
@@ -50,11 +52,13 @@ namespace GoAnimateRipper2
             {
                 
                 mainControl.ReturnWithMessage("An error occured parsing the theme file! (Are you sure the theme you typed exists?)");
-                //Directory.Delete(".\\" + fileLocation, true);
+                Directory.Delete(".\\" + fileLocation, true);
                 return false;
             }
         }
-
+        /// <summary>
+        /// void <c>endRipper</c> finishes up the ripping proceedure.
+        /// </summary>
         public void endRipper()
         {
             if (mainControl.doDecompile)
@@ -70,6 +74,9 @@ namespace GoAnimateRipper2
             //}
         }
 
+        /// <summary>
+        /// void <c>StartRip</c> starts the ripper; Template function.
+        /// </summary>
         public async Task StartRip()
         {
             // Bla
