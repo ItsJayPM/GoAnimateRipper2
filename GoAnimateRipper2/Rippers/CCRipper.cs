@@ -22,7 +22,7 @@ namespace GoAnimateRipper2
         /// <summary>
         /// void <c>StartRip</c> starts the ripper.
         /// </summary>
-        public async Task StartRip()
+        public override async Task StartRip()
         {
             if (!await initializeRipper()) return;
 

@@ -77,7 +77,7 @@ namespace GoAnimateRipper2
         /// <summary>
         /// void <c>StartRip</c> starts the ripper; Template function.
         /// </summary>
-        public async Task StartRip()
+        public virtual async Task StartRip()
         {
             // Bla
         }
