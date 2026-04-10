@@ -12,7 +12,6 @@ namespace GoAnimateRipper2
     public class AssetManager
     {
         MainControl mainControl;
-        EncryptionManager encryptionManager = new EncryptionManager();
         HttpClient httpClient = new HttpClient();
 
         List<string> pathes = new List<string>();
@@ -85,7 +84,7 @@ namespace GoAnimateRipper2
                 }
                 var data = await response.Content.ReadAsByteArrayAsync();
                 bool keySuccessfullyMatched = true;
-                bool isFileEncrypted = !encryptionManager.IsFlashPrefix(data);
+                bool isFileEncrypted = !EncryptionManager.IsFlashPrefix(data);
                 // If it's a SWF, deal with encryption jargon.
                 if (isSwf)
                 {
@@ -93,18 +92,18 @@ namespace GoAnimateRipper2
                     // If auto mode, try and figure out the key.
                     if (isSupposedToHaveEncryption && autoMode)
                     {
-                        key = encryptionManager.DetermineKey(data);
+                        key = EncryptionManager.DetermineKey(data);
                         if (key == null) keySuccessfullyMatched = false;
                     }
                     // If the key was found, decrypt. If it isn't auto mode, it will always work.
                     if (isSupposedToHaveEncryption && mainControl.doDecryption && keySuccessfullyMatched)
                     {
-                        data = encryptionManager.Decrypt(key, data);
+                        data = EncryptionManager.Decrypt(key, data);
                     }
                     // If re-encrypt is checked and everything succeeded (or a specific edge case occured where auto mode was on and the file was supposed to be encrypted but wasn't), do re-encryption.
                     if (mainControl.doReEncryption && isSupposedToHaveEncryption && (keySuccessfullyMatched || !isFileEncrypted))
                     {
-                        data = encryptionManager.Decrypt(Encoding.ASCII.GetBytes(mainControl.reEncryptionKey), data);
+                        data = EncryptionManager.Decrypt(Encoding.ASCII.GetBytes(mainControl.reEncryptionKey), data);
                     }
                 }
 

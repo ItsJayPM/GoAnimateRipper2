@@ -21,17 +21,21 @@ namespace GoAnimateRipper2
         /// Task <c>downloadGenericAssets</c> downloads assets that get generic and predictable types of assets.
         /// 
         /// </summary>
-        public async Task downloadGenericAssets(String elm, String targetProperty, String acceptFormat = null)
+        public async Task downloadGenericAssets(String elm, String targetProperty, String acceptFormat = null, String saveFolder = null)
         {
+            if (saveFolder == null)
+            {
+                saveFolder = elm;
+            }
             var elements = xmlDoc.Elements(elm);
             mainControl.setProgressBarMaximum(elements.Count());
             mainControl.resetProgressBar();
             foreach (var element in elements)
             {
                 var elementId = element.Attributes().Where(a => a.Name == targetProperty).Single().Value;
-                if (elementId.Contains(acceptFormat) || acceptFormat == null)
+                if (acceptFormat == null || elementId.Contains(acceptFormat))
                 {
-                    fileLocation = $"{themeId}\\{elm}\\{elementId}";
+                    fileLocation = $"{themeId}\\{saveFolder}\\{elementId}";
                     downloadSuccess = await assetManager.DownloadAsset(fileLocation, mainControl.doDecryption);
                     if (downloadSuccess) mainControl.writeMessage($"Downloaded {elm} '{elementId}'.");
                 }
@@ -79,7 +83,7 @@ namespace GoAnimateRipper2
 
 
                 await downloadGenericAssets("effect","id",".swf");
-                await downloadGenericAssets("background", "id");
+                await downloadGenericAssets("background","id",null,"bg");
 
                 var chars = xmlDoc.Elements("char");
                 mainControl.setProgressBarMaximum(chars.Count());
@@ -191,18 +195,7 @@ namespace GoAnimateRipper2
 
             if (!mainControl.skipNonFlash)
             {
-                var backgroundsthumb = xmlDoc.Elements("compositebg");
-                mainControl.setProgressBarMaximum(backgroundsthumb.Count());
-                mainControl.resetProgressBar();
-                foreach (var compositebg in backgroundsthumb)
-                {
-                    var bgThumb = compositebg.Attributes().Where(a => a.Name == "thumb").Single().Value;
-                    fileLocation = $"{themeId}\\bg\\{bgThumb}";
-
-                    await assetManager.DownloadAsset(fileLocation, false);
-                    if (downloadSuccess) mainControl.writeMessage($"Downloaded background thumbnail '{bgThumb}'.");
-                    mainControl.incrementProgressBar();
-                }
+                await downloadGenericAssets("compositebg", "thumb", null, "bg");
 
                 var starters = xmlDoc.Elements("starter");
                 mainControl.setProgressBarMaximum(starters.Count());

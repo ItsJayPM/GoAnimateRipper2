@@ -14,13 +14,8 @@ namespace GoAnimateRipper2
             "g0o1a2n3i4m5a6t7e",
             "(auto)"
         };
-       public EncryptionManager() 
-        { 
-            // Anything to put here?
-            // I don't think you need to pass anything to this class tbh ...
-        }
 
-        public byte[] Decrypt(byte[] pwd, byte[] data)
+        static public byte[] Decrypt(byte[] pwd, byte[] data)
         {
             int a, i, j, k, tmp;
             int[] key, box;
@@ -61,7 +56,7 @@ namespace GoAnimateRipper2
         /// <summary>
         /// bool <c>IsFlashPrefix</c> returns if byte[] <c>data</c> has a valid SWF header.
         /// </summary>
-        public bool IsFlashPrefix(byte[] data)
+        static public bool IsFlashPrefix(byte[] data)
         {
             string prefix = Encoding.UTF8.GetString(data).Substring(0, 3);
             return prefix == "CWS" || prefix == "FWS";
@@ -70,7 +65,7 @@ namespace GoAnimateRipper2
         /// <summary>
         /// bool <c>DetermineKey</c> tries to determine the key. It returns true if it succeeds.
         /// </summary>
-        public byte[] DetermineKey(byte[] data)
+        static public byte[] DetermineKey(byte[] data)
         {
             if (!IsFlashPrefix(data))
             {

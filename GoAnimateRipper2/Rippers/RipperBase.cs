@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace GoAnimateRipper2
 {
-    public class RipperBase
+    public abstract class RipperBase
     {
         public MainControl mainControl;
         public AssetManager assetManager;
@@ -75,11 +75,8 @@ namespace GoAnimateRipper2
         }
 
         /// <summary>
-        /// void <c>StartRip</c> starts the ripper; Template function.
+        /// public abstract Task <c>StartRip</c> starts the ripper; Abstract function.
         /// </summary>
-        public virtual async Task StartRip()
-        {
-            // Bla
-        }
+        public abstract Task StartRip();
     }
 }
