@@ -12,7 +12,7 @@ namespace GoAnimateRipper2
 {
     public class StandardRipper : RipperBase
     {
-        public StandardRipper(MainControl mainControl, string themeId) : base(mainControl, themeId)
+        public StandardRipper(string themeId) : base(themeId)
         {
             xmlFilename = "theme.xml";
         }

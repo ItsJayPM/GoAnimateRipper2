@@ -13,7 +13,7 @@ namespace GoAnimateRipper2
 {
     public class CCRipper : RipperBase
     {
-        public CCRipper(MainControl mainControl, string themeId) : base(mainControl, themeId)
+        public CCRipper(string themeId) : base(themeId)
         {
             xmlFilename = "cc_theme.xml";
             folder = "cc_store/";

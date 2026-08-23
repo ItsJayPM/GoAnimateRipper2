@@ -12,7 +12,7 @@ namespace GoAnimateRipper2
 {
     public abstract class RipperBase
     {
-        public MainControl mainControl;
+        public MainControl mainControl = MainControl.getInstance();
         public AssetManager assetManager;
         DecompManager decompManager;
         public XElement xmlDoc;
@@ -23,10 +23,9 @@ namespace GoAnimateRipper2
         public string folder = "";
         public string fileLocation;
 
-        public RipperBase(MainControl mainControl, string themeId)
+        public RipperBase(string themeId)
         {
-            this.mainControl = mainControl;
-            assetManager = new AssetManager(mainControl);
+            assetManager = new AssetManager();
             this.themeId = themeId;
         }
 
@@ -64,7 +63,7 @@ namespace GoAnimateRipper2
             if (mainControl.doDecompile)
             {
                 mainControl.writeMessage("Passing results to FFDec...", false);
-                decompManager = new DecompManager(mainControl, assetManager.getPathes());
+                decompManager = new DecompManager(assetManager.getPathes());
                 decompManager.RunFFDec();
                 if (mainControl.decOrganize) decompManager.ReorganizeAfterFFDec();
             }

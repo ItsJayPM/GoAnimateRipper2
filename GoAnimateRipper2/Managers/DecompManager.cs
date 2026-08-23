@@ -9,12 +9,11 @@ namespace GoAnimateRipper2.Managers
 {
     internal class DecompManager
     {
-        MainControl mainControl;
+        MainControl mainControl = MainControl.getInstance();
         List<string> pathes;
         String outputType = "fla";
-        public DecompManager(MainControl mainControl, List<string> pathes)
+        public DecompManager(List<string> pathes)
         {
-            this.mainControl = mainControl;
             this.pathes = pathes;
             if (mainControl.decImageOut) outputType = "frame";
         }

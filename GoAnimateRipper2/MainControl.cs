@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -18,6 +19,8 @@ namespace GoAnimateRipper2
     {
         private readonly String FORM_NAME = "GoAnimateRipper2";
         private readonly String VERSION = Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(0, Assembly.GetExecutingAssembly().GetName().Version.ToString().LastIndexOf("."));
+
+        private static MainControl instance;
         //Publicly exposed control options
         //Set when start button pressed
         public bool doDecryption;
@@ -61,6 +64,14 @@ namespace GoAnimateRipper2
         }
 
         /// <summary>
+        /// public static MainControl <c>getInstance</c> returns the instance.
+        /// </summary>
+        public static MainControl getInstance()
+        {
+            return instance;
+        }
+
+        /// <summary>
         /// void <c>StartProceedure</c> initiates the correct ripping process based on the selected settings.
         /// </summary>
         public async Task StartProceedure()
@@ -96,11 +107,11 @@ namespace GoAnimateRipper2
             RipperBase ripper;
             if (CCCheck.Checked)
             {
-                ripper = new CCRipper(this, themeId);
+                ripper = new CCRipper(themeId);
             }
             else
             {
-                ripper = new StandardRipper(this, themeId);
+                ripper = new StandardRipper(themeId);
             }
             await ripper.StartRip();
 
@@ -169,7 +180,11 @@ namespace GoAnimateRipper2
 
         public MainControl()
         {
+            Debug.Assert(instance != null, "[MainControl.cs] There shouldn't ever be two of this class, something terribly wrong has happened!!!");
+
             InitializeComponent();
+            instance = this;
+            
         }
 
         async private void RipButton_Click(object sender, EventArgs e)

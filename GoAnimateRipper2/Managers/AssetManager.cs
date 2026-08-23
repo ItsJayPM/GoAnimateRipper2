@@ -11,17 +11,15 @@ namespace GoAnimateRipper2
 {
     public class AssetManager
     {
-        MainControl mainControl;
+        MainControl mainControl = MainControl.getInstance();
         HttpClient httpClient = new HttpClient();
 
         List<string> pathes = new List<string>();
         Boolean autoMode = false;
         byte[] key;
 
-        public AssetManager(MainControl mainControl)
+        public AssetManager()
         {
-            this.mainControl = mainControl;
-
             autoMode = mainControl.decryptionKey != "(auto)" ? false : true;
             key = Encoding.ASCII.GetBytes(mainControl.decryptionKey);
         }
