@@ -34,7 +34,6 @@ namespace GoAnimateRipper2
             this.encryptKey = new System.Windows.Forms.ComboBox();
             this.encLabel = new System.Windows.Forms.Label();
             this.decEnabled = new System.Windows.Forms.CheckBox();
-            this.themeIdInput = new System.Windows.Forms.TextBox();
             this.tIdLabel = new System.Windows.Forms.Label();
             this.domainLabel = new System.Windows.Forms.Label();
             this.domainInput = new System.Windows.Forms.TextBox();
@@ -56,6 +55,7 @@ namespace GoAnimateRipper2
             this.skipFlashCheckBox = new System.Windows.Forms.CheckBox();
             this.encryptionGroup = new System.Windows.Forms.GroupBox();
             this.logHistory = new System.Windows.Forms.RichTextBox();
+            this.themeIdInput = new System.Windows.Forms.ComboBox();
             this.jpexsGroup.SuspendLayout();
             this.miscGroup.SuspendLayout();
             this.encryptionGroup.SuspendLayout();
@@ -111,15 +111,6 @@ namespace GoAnimateRipper2
             this.decEnabled.Text = "Decryption Enabled";
             this.decEnabled.UseVisualStyleBackColor = true;
             this.decEnabled.Click += new System.EventHandler(this.decEnabled_Click);
-            // 
-            // themeIdInput
-            // 
-            this.themeIdInput.Location = new System.Drawing.Point(81, 15);
-            this.themeIdInput.Margin = new System.Windows.Forms.Padding(4);
-            this.themeIdInput.Name = "themeIdInput";
-            this.themeIdInput.Size = new System.Drawing.Size(698, 22);
-            this.themeIdInput.TabIndex = 7;
-            this.themeIdInput.Text = "family";
             // 
             // tIdLabel
             // 
@@ -370,12 +361,23 @@ namespace GoAnimateRipper2
             this.logHistory.Text = "(Actions will be logged here.)";
             this.logHistory.WordWrap = false;
             // 
+            // themeIdInput
+            // 
+            this.themeIdInput.FormattingEnabled = true;
+            this.themeIdInput.Location = new System.Drawing.Point(81, 15);
+            this.themeIdInput.Name = "themeIdInput";
+            this.themeIdInput.Size = new System.Drawing.Size(698, 24);
+            this.themeIdInput.TabIndex = 27;
+            this.themeIdInput.Text = "family";
+            this.themeIdInput.TextChanged += new System.EventHandler(this.themeIdInput_TextUpdate);
+            // 
             // MainControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(788, 540);
+            this.Controls.Add(this.themeIdInput);
             this.Controls.Add(this.logHistory);
             this.Controls.Add(this.encryptionGroup);
             this.Controls.Add(this.miscGroup);
@@ -387,7 +389,6 @@ namespace GoAnimateRipper2
             this.Controls.Add(this.domainInput);
             this.Controls.Add(this.domainLabel);
             this.Controls.Add(this.tIdLabel);
-            this.Controls.Add(this.themeIdInput);
             this.Controls.Add(this.ripButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -413,7 +414,6 @@ namespace GoAnimateRipper2
         private System.Windows.Forms.ComboBox encryptKey;
         private System.Windows.Forms.Label encLabel;
         private System.Windows.Forms.CheckBox decEnabled;
-        private System.Windows.Forms.TextBox themeIdInput;
         private System.Windows.Forms.Label tIdLabel;
         private System.Windows.Forms.Label domainLabel;
         private System.Windows.Forms.TextBox domainInput;
@@ -435,6 +435,7 @@ namespace GoAnimateRipper2
         private System.Windows.Forms.CheckBox skipFlashCheckBox;
         private System.Windows.Forms.CheckBox logErrors;
         private System.Windows.Forms.RichTextBox logHistory;
+        private System.Windows.Forms.ComboBox themeIdInput;
     }
 }
 

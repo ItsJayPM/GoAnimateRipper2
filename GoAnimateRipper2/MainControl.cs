@@ -20,6 +20,56 @@ namespace GoAnimateRipper2
         private readonly String FORM_NAME = "GoAnimateRipper2";
         private readonly String VERSION = Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(0, Assembly.GetExecutingAssembly().GetName().Version.ToString().LastIndexOf("."));
 
+        private readonly String[] STANDARD_THEME_LIST =
+        {
+            "common",
+            "custom",
+            "retro",
+            "politic",
+            "politics2",
+            "christmas",
+            "monstermsh",
+            "monkeytalk",
+            "startrek",
+            "bunny",
+            "akon",
+            "willie",
+            "fullenergy",
+            "stick",
+            "sticklybiz",
+            "bizmodels",
+            "commoncraft",
+            "space",
+            "toonadv",
+            "ben10",
+            "sf",
+            "street",
+            "animal",
+            "action",
+            "chowder",
+            "domo",
+            "underdog",
+            "vietnam"
+        };
+        private readonly String[] CC_THEME_LIST =
+        {
+            "family",
+            "cc2",
+            "cctoonadventure"
+        };
+        private readonly String[] EITHER_THEME_LIST =
+        {
+            "anime",
+            "ninjaanime",
+            "spacecitzen",
+            "business",
+            "whiteboard",
+            "infographics",
+            "botdf",
+            "chibi",
+            "ninja"
+        };
+
         private static MainControl instance;
         //Publicly exposed control options
         //Set when start button pressed
@@ -200,6 +250,11 @@ namespace GoAnimateRipper2
 #if DEBUG
             Text = FORM_NAME + " DEBUG Build! WIP ... v" + VERSION;
 #endif
+            //New combo box function
+            String[] fullThemeList = STANDARD_THEME_LIST.Concat(CC_THEME_LIST).Concat(EITHER_THEME_LIST).ToArray();
+     
+            Array.Sort(fullThemeList);
+            themeIdInput.Items.AddRange(fullThemeList);
         }
 
         //Quick way to bodge in the log actually being useful.
@@ -253,6 +308,22 @@ namespace GoAnimateRipper2
                 reEncEnabled.Enabled = true;
                 reOrgDecomp.Enabled = false;
                 expPreview.Enabled = false;
+            }
+        }
+
+        private void themeIdInput_TextUpdate(object sender, EventArgs e)
+        {
+            if (!STANDARD_THEME_LIST.Contains(themeIdInput.Text) && !CC_THEME_LIST.Contains(themeIdInput.Text))
+            {
+                return;
+            }
+            if (STANDARD_THEME_LIST.Contains(themeIdInput.Text))
+            {
+                themeCheck.Checked = true;
+            }
+            else
+            {
+                CCCheck.Checked = true;
             }
         }
     }
