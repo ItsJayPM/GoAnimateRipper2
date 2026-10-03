@@ -77,9 +77,6 @@ namespace GoAnimateRipper2
             // 
             this.encryptKey.AccessibleName = "";
             this.encryptKey.FormattingEnabled = true;
-            this.encryptKey.Items.AddRange(new object[] {
-            "g0o1a2n3i4m5a6t7e",
-            "sorrypleasetryagainlater"});
             this.encryptKey.Location = new System.Drawing.Point(471, 17);
             this.encryptKey.Margin = new System.Windows.Forms.Padding(4);
             this.encryptKey.Name = "encryptKey";
@@ -212,9 +209,6 @@ namespace GoAnimateRipper2
             // 
             this.reEncryptKey.AccessibleName = "";
             this.reEncryptKey.FormattingEnabled = true;
-            this.reEncryptKey.Items.AddRange(new object[] {
-            "g0o1a2n3i4m5a6t7e",
-            "sorrypleasetryagainlater"});
             this.reEncryptKey.Location = new System.Drawing.Point(471, 45);
             this.reEncryptKey.Margin = new System.Windows.Forms.Padding(4);
             this.reEncryptKey.Name = "reEncryptKey";

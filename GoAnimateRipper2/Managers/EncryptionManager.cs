@@ -15,6 +15,11 @@ namespace GoAnimateRipper2
             "(auto)"
         };
 
+        public static String[] GetEncryptionKeys()
+        {
+            return ENCRYPTION_KEYS;
+        }
+
         static public byte[] Decrypt(byte[] pwd, byte[] data)
         {
             int a, i, j, k, tmp;

@@ -255,6 +255,9 @@ namespace GoAnimateRipper2
      
             Array.Sort(fullThemeList);
             themeIdInput.Items.AddRange(fullThemeList);
+            encryptKey.Items.AddRange(EncryptionManager.GetEncryptionKeys());
+            reEncryptKey.Items.AddRange(EncryptionManager.GetEncryptionKeys());
+            reEncryptKey.Items.Remove("(auto)");
         }
 
         //Quick way to bodge in the log actually being useful.
